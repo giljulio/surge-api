@@ -5,8 +5,9 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var env = require('node-env-file');
 
-
-env('./.env');
+if(!process.env.HEROKU) {
+    env('./.env');
+}
 
 
 
