@@ -10,7 +10,7 @@ var Boom = require('boom');
 
 /**
  * @swagger
- * resourcePath: /apiJs
+ * resourcePath: /users
  * description: All about API
  */
 
@@ -62,6 +62,29 @@ router.get("/:user_id", function (req, res, next) {
     });
 });
 
+/**
+ * @swagger
+ * path: /
+ * operations:
+ *   -  httpMethod: GET
+ *      summary: Login with username and password
+ *      notes: Returns a user based on username
+ *      responseClass: User
+ *      nickname: login
+ *      consumes:
+ *        - text/html
+ *      parameters:
+ *        - name: username
+ *          description: Your username
+ *          paramType: query
+ *          required: true
+ *          dataType: string
+ *        - name: password
+ *          description: Your password
+ *          paramType: query
+ *          required: true
+ *          dataType: string
+ */
 router.post("/", function (req, res, next) {
     console.log(JSON.stringify(req.body) + "\n\n");
     var user = new User({

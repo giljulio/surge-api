@@ -6,6 +6,8 @@ var mongoose = require('mongoose');
 var swagger = require('swagger-express');
 var path = require('path');
 
+//Swagger Documentation: https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md
+
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 if (process.env.NODE_ENV === 'development') {
@@ -22,20 +24,20 @@ app.use(cookieParser());
 app.use(swagger.init(app, {
     apiVersion: '1.0',
     swaggerVersion: '1.0',
-    basePath: 'http://localhost:3000',
+    basePath: process.env.ROOT_URL,
     swaggerURL: '/api-playground',
     swaggerJSON: '/api-docs.json',
     swaggerUI: './public/swagger/',
     apis: ['./routes/users.js']
 }));
+
 app.use(express.static(path.join(__dirname, 'public')));
 mongoose.connect(process.env.MONGOLAB_URI);
 
 
-
-
 var users = require('./routes/users');
 app.use('/users', users);
+
 
 
 // catch 404 and forward to error handler
