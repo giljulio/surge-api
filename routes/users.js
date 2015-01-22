@@ -52,15 +52,20 @@ router.get("/:user_id", function (req, res, next) {
     var query = User.where({_id: req.params.user_id });
     query.findOne(function (err, user) {
         if(err) {
-            console.log(JSON.stringify(err));
-            next(err);
-        } else if(user == null){
-            next(Boom.notFound("User " + req.params.user_id));
+            if(err.name == 'CastError'){
+                next(Boom.notFound("User not found for id " + req.params.user_id));
+            }
         } else {
+            authenticate(user);
             res.send(user);
         }
     });
 });
+
+function authenticate(user) {
+    console.log("Authenticating");
+    console.log(user);
+}
 
 /**
  * @swagger
