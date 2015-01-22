@@ -8,6 +8,12 @@ var mongoose = require('mongoose');
 var Boom = require('boom');
 
 
+/**
+ * @swagger
+ * resourcePath: /users
+ * description: All about API
+ */
+
 var User = mongoose.model('User', {
     email: {
         type: String,
@@ -19,10 +25,34 @@ var User = mongoose.model('User', {
     password: String
 });
 
+/**
+ * @swagger
+ * path: /login
+ * operations:
+ *   -  httpMethod: POST
+ *      summary: Login with username and password
+ *      notes: Returns a user based on username
+ *      responseClass: User
+ *      nickname: login
+ *      consumes:
+ *        - text/html
+ *      parameters:
+ *        - name: username
+ *          description: Your username
+ *          paramType: query
+ *          required: true
+ *          dataType: string
+ *        - name: password
+ *          description: Your password
+ *          paramType: query
+ *          required: true
+ *          dataType: string
+ */
 router.get("/:user_id", function (req, res, next) {
     var query = User.where({_id: req.params.user_id });
     query.findOne(function (err, user) {
         if(err) {
+            console.log(JSON.stringify(err));
             next(err);
         } else if(user == null){
             next(Boom.notFound("User " + req.params.user_id));
@@ -32,6 +62,29 @@ router.get("/:user_id", function (req, res, next) {
     });
 });
 
+/**
+ * @swagger
+ * path: /
+ * operations:
+ *   -  httpMethod: GET
+ *      summary: Login with username and password
+ *      notes: Returns a user based on username
+ *      responseClass: User
+ *      nickname: login
+ *      consumes:
+ *        - text/html
+ *      parameters:
+ *        - name: username
+ *          description: Your username
+ *          paramType: query
+ *          required: true
+ *          dataType: string
+ *        - name: password
+ *          description: Your password
+ *          paramType: query
+ *          required: true
+ *          dataType: string
+ */
 router.post("/", function (req, res, next) {
     console.log(JSON.stringify(req.body) + "\n\n");
     var user = new User({
