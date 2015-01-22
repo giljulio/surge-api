@@ -5,7 +5,6 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var swagger = require('swagger-express');
 var path = require('path');
-var Boom = require('Boom');
 
 //Swagger Documentation: https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md
 
