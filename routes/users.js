@@ -29,7 +29,7 @@ var User = mongoose.model('User', {
 });
 
 var Token = mongoose.model('Token', {
-   id: {
+   user_id: {
        type: String,
        index:true
    },
@@ -120,7 +120,7 @@ router.post("/authenticate", function (req, res, next) {
             next(Boom.notFound("Authentication failure for " + req.body.email));
         } else {
             var token = new Token({
-                id: user._id,
+                user_id: user._id,
                 token: createToken(),
                 expiration: newTimeStamp()
             });
@@ -153,6 +153,8 @@ var checkAuth = exports.checkAuth = function (req, res, next) {
         else {
             if((tok.expiration + expirationTime) > newTimeStamp()) {
                 console.log("Authentication Successful!");
+                req.user = {};
+                res.user.id = tok.user_id;
                 next();
             }
             else {
