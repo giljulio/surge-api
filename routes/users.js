@@ -106,7 +106,8 @@ router.post("/authenticate", function (req, res, next) {
     });
 });
 
-exports.checkAuth = function (req, res, next) {
+var checkAuth = exports.checkAuth = function (req, res, next) {
+    console.log("checkAuth");
     var token = req.headers.Authorization;
     token.replace("Bearer ", "");
     var query = User.where('token', token);
@@ -129,9 +130,10 @@ exports.checkAuth = function (req, res, next) {
 
 };
 
-/*router.get("/:user_id/favs", checkAuth, function(req, res, next){
+router.get("/:user_id/favs", [checkAuth, function(req, res, next){
     console.log("It authenticated the token!");
-});*/
+    res.send({response: "Success!"});
+}]);
 
 /**
  * @swagger
