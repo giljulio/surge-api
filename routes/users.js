@@ -9,6 +9,8 @@ var Boom = require('boom');
 var crypto = require('crypto');
 var base64url = require('base64url');
 
+var expirationTime = 10512000000;
+
 
 /**
  * @swagger
@@ -24,7 +26,14 @@ var User = mongoose.model('User', {
         unique: true,
         index: true
     },
-    password: String
+    password: String,
+    token: {
+        type:String,
+        index:true
+    },
+    expiration: {
+        type:Number
+    }
 });
 
 function randomStringAsBase64Url(size) {
@@ -33,6 +42,10 @@ function randomStringAsBase64Url(size) {
 
 function createToken() {
     return randomStringAsBase64Url(40);
+}
+
+function newTimeStamp() {
+    return new Date().getTime();
 }
 
 /**
@@ -81,11 +94,44 @@ router.post("/authenticate", function (req, res, next) {
             next(Boom.notFound("Authentication failure for " + req.body.email));
         }
         else {
-            res.send(createToken());
+            var token = createToken();
+            var timeStamp = newTimeStamp();
+            res.send({token: token, timestamp: timeStamp});
+            console.log(user);
+            user.token=token;
+            user.expiration=timeStamp;
+            user.save();
+            console.log(user);
         }
     });
 });
 
+exports.checkAuth = function (req, res, next) {
+    var token = req.headers.Authorization;
+    token.replace("Bearer ", "");
+    var query = User.where('token', token);
+    query.findOne(function (err, user) {
+        if(err) {
+            next(Boom.notFound("API Connection Failed"));
+        } else if (user == "null") {
+            next(Boom.notFound("Token not Found"));
+        }
+        else {
+            if((user.expiration + expirationTime) > newTimeStamp()) {
+                console.log("Authentication Successful!");
+                next();
+            }
+            else {
+                next(Boom.unauthorized("Token out of date!"));
+            }
+        }
+    });
+
+};
+
+/*router.get("/:user_id/favs", checkAuth, function(req, res, next){
+    console.log("It authenticated the token!");
+});*/
 
 /**
  * @swagger
