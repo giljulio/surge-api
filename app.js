@@ -52,9 +52,9 @@ app.use(function(req, res, next) {
 
 app.use(function(err, req, res, next) {
     if(err.isBoom){
+        res.set(err.output.headers);
         res.status(err.output.statusCode);
         res.send(err.output.payload);
-        res.headers(err.output.headers);
         res.end();
     } else if (app.get('env') === 'development') {
         res.send(err);

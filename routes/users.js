@@ -137,6 +137,75 @@ router.get("/:user_id/favs", [checkAuth, function(req, res, next){
 
 /**
  * @swagger
+ * path: /users
+ * operations:
+ *   -  httpMethod: POST
+ *      summary: Add a new user
+ *      notes: Posts email and password
+ *      nickname: RegisterUser
+ *      consumes:
+ *        - application/json
+ *      parameters:
+ *        - name: username
+ *          description: Your username
+ *          paramType: body
+ *          required: true
+ *          dataType: string
+ *        - name: password
+ *          description: Your password
+ *          paramType: body
+ *          required: true
+ *          dataType: string
+ */
+
+router.post("/", function(req, res, next) {
+    var query = User.where('email', req.body.email);
+    query.findOne(function (err, user) {
+       if (err) {
+           next(Boom.notFound("API Connection Failed"));
+       }
+       else if (user == null) {
+           var newUser = new User ({
+               email:req.body.email,
+               password:md5(req.body.password),
+               token: createToken(),
+               expiration: newTimeStamp()
+           });
+           console.log(req.body.email);
+           var atSymbol = req.body.email.indexOf("@");
+           var dotSymbol = req.body.email.lastIndexOf(".");
+
+           if (req.body.password.length < 8) {
+               next(Boom.unauthorized("The password entered needs to be more than 8 characters."));
+           }
+           // Check for @ symbol in email address
+           else if (atSymbol < 1 || dotSymbol < atSymbol + 2 || dotSymbol + 1 >= req.body.email.length) {
+               next(Boom.unauthorized("The following email address: " + req.body.email + " is invalid."));
+           }
+           else {
+               newUser.save(function (err) {
+                   if (err) {
+                       next(err);
+                   }
+                   else {
+                       res.send({
+                           email: req.body.email,
+                           password: md5(req.body.password),
+                           token: createToken(),
+                           expiration: newTimeStamp()
+                       });
+                   }
+               });
+           }
+       }
+       else if (user.email == req.body.email) {
+           next(Boom.unauthorized("The following email address: " + req.body.email + " already exists."));
+       }
+    });
+});
+
+/**
+ * @swagger
  * path: /
  * operations:
  *   -  httpMethod: GET
@@ -158,23 +227,6 @@ router.get("/:user_id/favs", [checkAuth, function(req, res, next){
  *          required: true
  *          dataType: string
  */
-router.post("/", function (req, res, next) {
-    console.log(JSON.stringify(req.body) + "\n\n");
-    var user = new User({
-        email: req.body.email,
-        password: md5(req.body.password)
-    });
-    user.save(function (err) {
-        if (err){
-            next(err);
-        } else {
-            res.send({
-                user_id: user._id,
-                email: req.body.email
-            });
-        }
-    });
-});
 
 /*
     Creates a user if it doesn't exist. If it does exist it checks if the
