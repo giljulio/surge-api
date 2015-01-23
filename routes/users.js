@@ -107,15 +107,17 @@ router.post("/authenticate", function (req, res, next) {
 });
 
 var checkAuth = exports.checkAuth = function (req, res, next) {
-    console.log("checkAuth");
-    var token = req.headers.Authorization;
-    token.replace("Bearer ", "");
+    console.log("checkAuthorisation");
+    var token = req.headers.authorization;
+    //token.replace("Bearer ", "");
+    console.log(token);
     var query = User.where('token', token);
     query.findOne(function (err, user) {
         if(err) {
-            next(Boom.notFound("API Connection Failed"));
-        } else if (user == "null") {
-            next(Boom.notFound("Token not Found"));
+            next(Boom.notFound("DB Connection Failed"));
+        }
+        else if (user == null) {
+            next(Boom.unauthorized("Token not Found"));
         }
         else {
             if((user.expiration + expirationTime) > newTimeStamp()) {
