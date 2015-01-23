@@ -6,6 +6,8 @@ var md5 = require('MD5');
 var jwt = require('jwt-simple');
 var mongoose = require('mongoose');
 var Boom = require('boom');
+var crypto = require('crypto');
+var base64url = require('base64url');
 
 
 /**
@@ -24,6 +26,14 @@ var User = mongoose.model('User', {
     },
     password: String
 });
+
+function randomStringAsBase64Url(size) {
+    return base64url(crypto.randomBytes(size));
+}
+
+function createToken() {
+    return randomStringAsBase64Url(40);
+}
 
 /**
  * @swagger
@@ -56,16 +66,26 @@ router.get("/:user_id", function (req, res, next) {
                 next(Boom.notFound("User not found for id " + req.params.user_id));
             }
         } else {
-            authenticate(user);
             res.send(user);
         }
     });
 });
 
-function authenticate(user) {
-    console.log("Authenticating");
-    console.log(user);
-}
+router.post("/authenticate", function (req, res, next) {
+   var query = User.where('email', req.body.email).where('password', req.body.password);
+    query.findOne(function (err, user) {
+        if(err) {
+            next(Boom.notFound("API Connection Failed"));
+        }
+        else if (user == null) {
+            next(Boom.notFound("Authentication failure for " + req.body.email));
+        }
+        else {
+            res.send(createToken());
+        }
+    });
+});
+
 
 /**
  * @swagger
