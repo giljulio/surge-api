@@ -10,7 +10,7 @@ suite.discuss('When using your awesome API')
     .discuss('test email is stored correctly using the API')
     .use('localhost', 3000)
     .setHeader('Content-Type', 'application/json')
-    .post('/users', { email:'test'+randnum+'@gmail.com', password:'bants' })
+    .post('/users', { email:'test'+randnum+'@gmail.com', password:'password123' })
     .expect("email that we just posted",  function (err, res, body){
         var result = JSON.parse(body);
         console.log(result);
@@ -18,6 +18,30 @@ suite.discuss('When using your awesome API')
     })
     .export(module);
 
+suite.discuss('When using your awesome API')
+    .discuss('test email inputted is correctly formatted and that password provided is valid')
+    .use('localhost', 3000)
+    .setHeader('Content-Type', 'application/json')
+    .post('/users', { email:'test'+randnum + 1 +'@gmail.com', password:'pass12345' })
+    .expect("email that was posted", function (err, res, body) {
+        var result = JSON.parse(body);
+        console.log(result);
+        assert.include(result.email, 'test'+randnum + 1 +'@gmail.com');
+        assert.include(result.password, '52dcb810931e20f7aa2f49b3510d3805')
+    })
+    .export(module);
+
+suite.discuss('When using your awesome API')
+    .discuss('test that email does not already exist on DB')
+    .use('localhost', 3000)
+    .setHeader('Content-Type', 'application/json')
+    .post('/users', { email:'test123@gmail.com', password:'pass12345' })
+    .expect("email that was posted", function (err, res, body) {
+        var result = JSON.parse(body);
+        console.log(result);
+        assert.include(result.email, 'test123@gmail.com');
+    })
+    .export(module);
 
 //not working, will come back to it
 //suite.discuss('When using your awesome API')
