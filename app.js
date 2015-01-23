@@ -39,6 +39,9 @@ mongoose.connect(process.env.MONGOLAB_URI);
 var users = require('./routes/users');
 app.use('/users', users);
 
+var videos = require('./routes/videos');
+app.use('/video', videos);
+
 // catch 404 and forward to error handler
 /*
 app.use(function(req, res, next) {
@@ -67,6 +70,7 @@ app.use(function(err, req, res, next) {
 /*app.use(function(err, req, res, next) {
 
 });*/
+
 
 
 module.exports = app;

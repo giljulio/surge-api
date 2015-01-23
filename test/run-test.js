@@ -35,28 +35,26 @@ suite.discuss('When using your awesome API')
     .discuss('test that email does not already exist on DB')
     .use('localhost', 3000)
     .setHeader('Content-Type', 'application/json')
-    .post('/users', { email:'test123@gmail.com', password:'pass12345' })
+    .post('/users', { email:'test123' + randnum +'@gmail.com', password:'pass12345' })
     .expect("email that was posted", function (err, res, body) {
         var result = JSON.parse(body);
         console.log(result);
-        assert.include(result.email, 'test123@gmail.com');
+        assert.include(result.email, 'test123'+randnum+'@gmail.com');
     })
     .export(module);
 
-//not working, will come back to it
-//suite.discuss('When using your awesome API')
-//    .discuss('test password is stored correctly')
-//    .use('localhost', 3000)
-//    .setHeader('Content-Type', 'application/json')
-//    .post('/users', { email:'test'+randnum + 1 +'@gmail.com', password:('bants')})
-//    .expect("password that we just posted",  function (err, res, body){
-//        var result = JSON.parse(body);
-//        var pass =  md5(result.password)
-//        assert.include(pass, ('bants'));
-//        console.log(pass);
-//
-//    })
-//    .export(module);
+suite.discuss('When using your awesome API')
+    .discuss('test password is stored correctly')
+    .use('localhost', 3000)
+    .setHeader('Content-Type', 'application/json')
+    .post('/users', { email:'test'+randnum + 3 +'@gmail.com', password:'pass12345'})
+    .expect("password that we just posted",  function (err, res, body){
+        var result = JSON.parse(body);
+        assert.include(result.password, '52dcb810931e20f7aa2f49b3510d3805')
+        //console.log(pass);
+
+    })
+    .export(module);
 
 
 
