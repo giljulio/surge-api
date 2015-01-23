@@ -11,7 +11,6 @@ var base64url = require('base64url');
 
 var expirationTime = 10512000000;
 
-
 /**
  * @swagger
  * resourcePath: /users
@@ -50,15 +49,14 @@ function newTimeStamp() {
 
 /**
  * @swagger
- * path: /login
+ * path: /user/userID
  * operations:
- *   -  httpMethod: POST
- *      summary: Login with username and password
- *      notes: Returns a user based on username
- *      responseClass: User
- *      nickname: login
+ *   -  httpMethod: GET
+ *      summary: Get user ID's
+ *      notes: Returns a list of User ID
+ *      nickname: User details
  *      consumes:
- *        - text/html
+ *        - application/json
  *      parameters:
  *        - name: username
  *          description: Your username
@@ -79,7 +77,7 @@ router.get("/:user_id", function (req, res, next) {
                 next(Boom.notFound("User not found for id " + req.params.user_id));
             }
         } else {
-            res.send(user);
+            res.send({id:user._id, email:user.email});
         }
     });
 });
