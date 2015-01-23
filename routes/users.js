@@ -25,7 +25,14 @@ var User = mongoose.model('User', {
         unique: true,
         index: true
     },
-    password: String,
+    password: String
+});
+
+var Token = mongoose.model('Token', {
+   id: {
+       type: String,
+       index:true
+   },
     token: {
         type:String,
         index:true
@@ -82,24 +89,51 @@ router.get("/:user_id", function (req, res, next) {
     });
 });
 
+/**
+ * @swagger
+ * path: /authenticate
+ * operations:
+ *   -  httpMethod: POST
+ *      summary: Returns a token based on email and password
+ *      notes: Email and password are checked, if they check out then a new token will be issues with an expiration date and these details will be stored in the DB.
+ *      nickname: Authenticate
+ *      consumes:
+ *        - text/html
+ *      parameters:
+ *        - name: email
+ *          description: Your email Address
+ *          paramType: form
+ *          required: true
+ *          dataType: string
+ *        - name: password
+ *          description: Your password
+ *          paramType: form
+ *          required: true
+ *          dataType: string
+ */
 router.post("/authenticate", function (req, res, next) {
    var query = User.where('email', req.body.email).where('password', req.body.password);
     query.findOne(function (err, user) {
         if(err) {
             next(Boom.notFound("API Connection Failed"));
-        }
-        else if (user == null) {
+        } else if (user == null) {
             next(Boom.notFound("Authentication failure for " + req.body.email));
-        }
-        else {
-            var token = createToken();
-            var timeStamp = newTimeStamp();
-            res.send({token: token, timestamp: timeStamp});
-            console.log(user);
-            user.token=token;
-            user.expiration=timeStamp;
-            user.save();
-            console.log(user);
+        } else {
+            var token = new Token({
+                id: user._id,
+                token: createToken(),
+                expiration: newTimeStamp()
+            });
+            token.save(function (err) {
+                if (err) {
+                    next(err);
+                } else {
+                    res.send({
+                        token: token.token,
+                        timestamp: token.expiration
+                    });
+                }
+            });
         }
     });
 });
@@ -107,18 +141,17 @@ router.post("/authenticate", function (req, res, next) {
 var checkAuth = exports.checkAuth = function (req, res, next) {
     console.log("checkAuthorisation");
     var token = req.headers.authorization;
-    //token.replace("Bearer ", "");
     console.log(token);
-    var query = User.where('token', token);
-    query.findOne(function (err, user) {
+    var query = Token.where('token', token);
+    query.findOne(function (err, tok) {
         if(err) {
             next(Boom.notFound("DB Connection Failed"));
         }
-        else if (user == null) {
+        else if (tok == null) {
             next(Boom.unauthorized("Token not Found"));
         }
         else {
-            if((user.expiration + expirationTime) > newTimeStamp()) {
+            if((tok.expiration + expirationTime) > newTimeStamp()) {
                 console.log("Authentication Successful!");
                 next();
             }
