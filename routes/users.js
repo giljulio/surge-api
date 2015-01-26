@@ -25,14 +25,11 @@ var User = mongoose.model('User', {
         unique: true,
         index: true
     },
-    password: String
+    password: String,
+    tokens: [Token]
 });
 
 var Token = mongoose.model('Token', {
-   user_id: {
-       type: String,
-       index:true
-   },
     token: {
         type:String,
         index:true
@@ -119,21 +116,17 @@ router.post("/authenticate", function (req, res, next) {
         } else if (user == null) {
             next(Boom.notFound("Authentication failure for " + req.body.email));
         } else {
-            var token = new Token({
-                user_id: user._id,
-                token: createToken(),
-                expiration: newTimeStamp()
+            var token = createToken();
+            var timeStamp = newTimeStamp();
+            res.send({token: token, timestamp: timeStamp});
+            console.log(user);
+            var newToken = new Token ({
+                token: token,
+                expiration: timeStamp
             });
-            token.save(function (err) {
-                if (err) {
-                    next(err);
-                } else {
-                    res.send({
-                        token: token.token,
-                        timestamp: token.expiration
-                    });
-                }
-            });
+            user.tokens.push(newToken);
+            user.save();
+            console.log(user);
         }
     });
 });
@@ -141,24 +134,27 @@ router.post("/authenticate", function (req, res, next) {
 var checkAuth = exports.checkAuth = function (req, res, next) {
     console.log("checkAuthorisation");
     var token = req.headers.authorization;
+    var userID = req.params.user_id;
     console.log(token);
-    var query = Token.where('token', token);
+    var query = User.where({_id: req.params.user_id, 'tokens.token': token });
     query.findOne(function (err, tok) {
+        console.log(tok);
         if(err) {
             next(Boom.notFound("DB Connection Failed"));
         }
         else if (tok == null) {
-            next(Boom.unauthorized("Token not Found"));
-        }
-        else {
-            if((tok.expiration + expirationTime) > newTimeStamp()) {
-                console.log("Authentication Successful!");
-                req.user = {};
-                res.user.id = tok.user_id;
-                next();
-            }
-            else {
-                next(Boom.unauthorized("Token out of date!"));
+            next(Boom.unauthorized("User not Found"));
+        } else {
+            for(var i = 0; i < tok.tokens.length; i++){
+                if(tok.tokens[i].token == token){
+                    if((tok.tokens[i].expiration + expirationTime) > newTimeStamp()) {
+                        console.log("Authentication Successful!");
+                        next();
+                    } else {
+                        next(Boom.unauthorized("Token out of date!"));
+                    }
+                    break;
+                }
             }
         }
     });
