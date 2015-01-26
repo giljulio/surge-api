@@ -14,17 +14,18 @@ var base64url = require('base64url');
 
 
 var Video = mongoose.model('Video', {
+
     title:
     {
         type: String,
         trim: true,
-        lowercase: true,
-        index: true
+        index: true,
+        required: true
     },
     duration:
     {
         type: Number,
-         lowercase: true
+        lowercase: true
     },
     ////video_id:
     ////{
@@ -41,7 +42,8 @@ var Video = mongoose.model('Video', {
     url:
     {
         type: String,
-        trim: true
+        trim: true,
+        required: true
     }
 
 });
