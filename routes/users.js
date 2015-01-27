@@ -73,7 +73,7 @@ function newTimeStamp() {
  *          required: true
  *          dataType: string
  */
-router.get("/:user_id", function (req, res, next) {
+router.get("/:user_id", function (req, res, next) {     // returns a users details based on their ID
     var query = User.where({_id: req.params.user_id });
     query.findOne(function (err, user) {
         if(err) {
@@ -108,7 +108,7 @@ router.get("/:user_id", function (req, res, next) {
  *          required: true
  *          dataType: string
  */
-router.post("/authenticate", function (req, res, next) {
+router.post("/authenticate", function (req, res, next) {        //If the user submits a correct email and password a token and expiration date will be generated
    var query = User.where('email', req.body.email).where('password', req.body.password);
     query.findOne(function (err, user) {
         if(err) {
@@ -131,7 +131,7 @@ router.post("/authenticate", function (req, res, next) {
     });
 });
 
-var checkAuth = exports.checkAuth = function (req, res, next) {
+var checkAuth = exports.checkAuth = function (req, res, next) { //Function that checks their authentication token as to whether it's valid or not
     console.log("checkAuthorisation");
     var token = req.headers.authorization;
     var userID = req.params.user_id;
@@ -161,12 +161,32 @@ var checkAuth = exports.checkAuth = function (req, res, next) {
 
 };
 
-router.get("/:user_id/favs", [checkAuth, function(req, res, next){
+router.get("/:user_id/favs", [checkAuth, function(req, res, next){      //Example function of calling a function that requires a user to be authorised
     console.log("It authenticated the token!");
     res.send({response: "Success!"});
 }]);
 
-router.delete("/:user_id", function (req, res, next) {
+
+
+
+/**
+ * @swagger
+ * path: /users/user_id
+ * operations:
+ *   -  httpMethod: DELETE
+ *      summary: Removes a user account and all of their tokens
+ *      notes: A users account id is submitted and the document is then deleted from the database.
+ *      nickname: deleteUser
+ *      consumes:
+ *        - x-www-form-urlencoded
+ *      parameters:
+ *        - User ID: user_id
+ *          description: The users ID to delete
+ *          paramType: form
+ *          required: true
+ *          dataType: string
+ */
+router.delete("/:user_id", function (req, res, next) {          //Deletes a user by ID
     console.log("Deleting User " + req.params.user_id);
     User.remove({ _id: req.params.user_id }, function(err) {
         if (!err) {
