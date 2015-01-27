@@ -9,7 +9,7 @@ var Boom = require('boom');
 var crypto = require('crypto');
 var base64url = require('base64url');
 
-var expirationTime = 10512000000;
+var expirationTime = 10512000000; //4 Months in Milliseconds
 
 /**
  * @swagger
@@ -88,7 +88,7 @@ router.get("/:user_id", function (req, res, next) {
 
 /**
  * @swagger
- * path: /authenticate
+ * path: /users/authenticate
  * operations:
  *   -  httpMethod: POST
  *      summary: Returns a token based on email and password
@@ -99,12 +99,12 @@ router.get("/:user_id", function (req, res, next) {
  *      parameters:
  *        - name: email
  *          description: Your email Address
- *          paramType: form
+ *          paramType: body
  *          required: true
  *          dataType: string
  *        - name: password
  *          description: Your password
- *          paramType: form
+ *          paramType: body
  *          required: true
  *          dataType: string
  */
