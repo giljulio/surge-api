@@ -95,16 +95,16 @@ router.get("/:user_id", function (req, res, next) {
  *      notes: Email and password are checked, if they check out then a new token will be issues with an expiration date and these details will be stored in the DB.
  *      nickname: Authenticate
  *      consumes:
- *        - text/html
+ *        - x-www-form-urlencoded
  *      parameters:
  *        - name: email
  *          description: Your email Address
- *          paramType: body
+ *          paramType: form
  *          required: true
  *          dataType: string
  *        - name: password
  *          description: Your password
- *          paramType: body
+ *          paramType: form
  *          required: true
  *          dataType: string
  */
@@ -165,6 +165,19 @@ router.get("/:user_id/favs", [checkAuth, function(req, res, next){
     console.log("It authenticated the token!");
     res.send({response: "Success!"});
 }]);
+
+router.delete("/:user_id", function (req, res, next) {
+    console.log("Deleting User " + req.params.user_id);
+    User.remove({ _id: req.params.user_id }, function(err) {
+        if (!err) {
+            console.log("Deleting User " + req.params.user_id);
+            res.send({message: "User with ID " + req.params.user_id + " has been deleted."});
+        }
+        else {
+            next(Boom.notFound("ERROR"));
+        }
+    });
+});
 
 /**
  * @swagger
