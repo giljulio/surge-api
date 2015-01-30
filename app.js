@@ -40,7 +40,7 @@ var users = require('./routes/users');
 app.use('/users', users);
 
 var videos = require('./routes/videos');
-app.use('/video', videos);
+app.use('/videos', videos);
 
 // catch 404 and forward to error handler
 /*
