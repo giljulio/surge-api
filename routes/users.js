@@ -204,7 +204,7 @@ router.get("/:user_id/favs", [checkAuth, function(req, res, next){      //Exampl
  *          required: true
  *          dataType: string
  */
-router.delete("/:user_id", function (req, res, next) {          //Deletes a user by ID
+router.delete("/:_id", function (req, res, next) {          //Deletes a user by ID
     console.log("Deleting User " + req.params.user_id);
     User.remove({ _id: req.params.user_id }, function(err) {
         if (!err) {
