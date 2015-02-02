@@ -11,8 +11,7 @@ var mongoose = require('mongoose');
 var Boom = require('boom');
 var crypto = require('crypto');
 var base64url = require('base64url');
-var decay = require('decay')
-    , hotScore = decay.redditHot();
+var decay = require('decay'), hotScore = decay.redditHot();
 
 var Video = mongoose.model('Video', {
 
@@ -55,9 +54,6 @@ var Video = mongoose.model('Video', {
     }
 });
 
-function newTimeStamp() {
-    return new Date().getTime();
-}
 
 /**
  * @swagger
@@ -107,6 +103,10 @@ router.get("/", function (req, res, next)
             sort = {
                 up_vote: -1
             };
+        }
+        if(req.query.sort == "controversial"){
+            sort = {
+            }
         }
     }
 
@@ -170,6 +170,13 @@ router.post("/", function (req, res, next)
         }
 });
 
+/**
+ * @swagger
+
+ *      summary: Works out the Surge Rating
+ *      notes: It gets the number of up and down votes and then uses the timestamp to work out the rating
+ *      notes: Uses decay.js to use the reddit algorithm
+ */
 setInterval(function () {
     var query = Video.where({});
     query.find(function (err, videos) {
