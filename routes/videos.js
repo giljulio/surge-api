@@ -43,11 +43,16 @@ var Video = mongoose.model('Video', {
         trim: true,
         required: true
     },
-    timestamp: {
+    timestamp:
+    {
         type: Date,
         default: Date.now
+    },
+    category:
+    {
+        type:Number,
+        required:true
     }
-
 });
 
 function newTimeStamp() {
@@ -79,10 +84,35 @@ function newTimeStamp() {
 
 router.get("/", function (req, res, next)
 {
-    var query = Video.where({});
-    query.find(function (err, video) {
-        if(err)
-        {
+    var filter = {};
+    if(req.query.category){
+        filter = {
+            category: req.query.category
+        };
+    }
+
+    var sort = {};
+    if(req.query.sort){
+        if(req.query.sort == "surge_rate"){
+            sort = {
+                surge_rate: -1
+            };
+        }
+        if(req.query.sort == "newest"){
+            sort = {
+                timestamp: -1
+            };
+        }
+        if(req.query.sort == "top"){
+            sort = {
+                up_vote: -1
+            };
+        }
+    }
+
+    var query = Video.where(filter);
+    query.skip(req.query.skip || 0).limit(req.query.limit || 30).sort(sort).find(function (err, video) {
+        if(err) {
             next(Boom.notFound("Video not found for this particular ID " + req.params.video_id));
         }
         else
@@ -124,7 +154,8 @@ router.post("/", function (req, res, next)
             url: req.body.url,
             up_vote: req.body.up_vote,
             down_vote: req.body.down_vote,
-            surge_rate: req.body.surge_rate
+            surge_rate: req.body.surge_rate,
+            category: req.body.category
         });
         if (req.body.title.length < 6) {
             next(Boom.unauthorized("The title needs to be at least six characters."));
@@ -133,9 +164,7 @@ router.post("/", function (req, res, next)
                 if (err) {
                     next(err);
                 } else {
-                    res.send({
-                        message: "Video has been posted. Thanks"
-                    });
+                    res.send(video);
                 }
             });
         }
@@ -146,7 +175,6 @@ setInterval(function () {
     query.find(function (err, videos) {
         if(!err) {
             videos.forEach(function (v) {
-                //var ctimeStamp = newTimeStamp();
                 console.log(v.down_vote);
                 console.log(v.up_vote);
                 var surge_rating = hotScore(v.up_vote, v.down_vote, v.timestamp);
