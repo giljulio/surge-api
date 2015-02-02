@@ -42,9 +42,17 @@ var Video = mongoose.model('Video', {
         type: String,
         trim: true,
         required: true
+    },
+    timestamp: {
+        type: Date,
+        default: Date.now
     }
 
 });
+
+function newTimeStamp() {
+    return new Date().getTime();
+}
 
 /**
  * @swagger
@@ -80,7 +88,6 @@ router.get("/", function (req, res, next)
         else
         {
             res.send(video);
-
         }
     });
 });
@@ -114,8 +121,10 @@ router.post("/", function (req, res, next)
         console.log(JSON.stringify(req.body) + "\n\n");
         var video = new Video({
             title: req.body.title,
-            url: req.body.url
-
+            url: req.body.url,
+            up_vote: req.body.up_vote,
+            down_vote: req.body.down_vote,
+            surge_rate: req.body.surge_rate
         });
         if (req.body.title.length < 6) {
             next(Boom.unauthorized("The title needs to be at least six characters."));
@@ -132,20 +141,22 @@ router.post("/", function (req, res, next)
         }
 });
 
-
 setInterval(function () {
     var query = Video.where({});
     query.find(function (err, videos) {
         if(!err) {
             videos.forEach(function (v) {
-                var surge_rating = hotScore(v.ups, v.downs, v.timestamp);
+                //var ctimeStamp = newTimeStamp();
+                console.log(v.down_vote);
+                console.log(v.up_vote);
+                var surge_rating = hotScore(v.up_vote, v.down_vote, v.timestamp);
                 // save so that next GET /entry/ gets an updated ordering
-                videos.surge_rate.push(surge_rating)
-                videos.save();
-                console.log(videos)
+                v.surge_rate = surge_rating;
+                v.save();
+                console.log(v)
             });
         }
     });
-}, 1000 * 60 * 5); // run every 5 minutes, say
+}, 1000 * 60 * 1); // run every 5 minutes, say
 
 module.exports = router;
