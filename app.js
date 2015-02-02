@@ -44,7 +44,7 @@ app.use('/video', videos);
 
 setTimeout(function(){
     //reddit hotness calculation here
-}, 60000); // 60000 = a minute in MS
+}, 60000); //60000 = a minute in MS
 
 
 // catch 404 and forward to error handler
