@@ -42,6 +42,11 @@ app.use('/users', users);
 var videos = require('./routes/videos');
 app.use('/videos', videos);
 
+setTimeout(function(){
+    //reddit hotness calculation here
+}, 60000); //60000 = a minute in MS
+
+
 // catch 404 and forward to error handler
 /*
 app.use(function(req, res, next) {
