@@ -94,17 +94,17 @@ router.get("/", function (req, res, next)
                 surge_rate: -1
             };
         }
-        if(req.query.sort == "newest"){
+        else if(req.query.sort == "newest"){
             sort = {
                 timestamp: -1
             };
         }
-        if(req.query.sort == "top"){
+        else if(req.query.sort == "top"){
             sort = {
                 up_vote: -1
             };
         }
-        if(req.query.sort == "controversial"){
+        else if(req.query.sort == "controversial"){
             sort = {
             }
         }
