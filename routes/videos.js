@@ -127,9 +127,9 @@ router.get("/", function (req, res, next)
  * @swagger
  * path: /video
  * operations:
- *   -  httpMethod: GET
- *      summary: Get backs a list videos
- *      notes: These include Site ID, Duration etc
+ *   -  httpMethod: PST
+ *      summary: Post a Video
+ *      notes: These include title, url, up_vote, down_vote
  *      nickname: Videos
  *      consumes:
  *        - application/json
@@ -145,7 +145,6 @@ router.get("/", function (req, res, next)
  *          required: true
  *          dataType: string
  */
-
 router.post("/", function (req, res, next)
         {
         console.log(JSON.stringify(req.body) + "\n\n");
