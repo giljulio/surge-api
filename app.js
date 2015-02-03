@@ -29,7 +29,7 @@ app.use(swagger.init(app, {
     swaggerURL: '/api-playground',
     swaggerJSON: '/api-docs.json',
     swaggerUI: './public/swagger/',
-    apis: ['./routes/users.js']
+    apis: ['./routes/users.js','./routes/videos.js']
 }));
 
 app.use(express.static(path.join(__dirname, 'public')));

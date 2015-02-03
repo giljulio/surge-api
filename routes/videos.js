@@ -1,4 +1,4 @@
-/**
+/*
  * Created by qasimshabir on 23/01/15.
  */
 var express = require('express');
@@ -12,6 +12,13 @@ var Boom = require('boom');
 var crypto = require('crypto');
 var base64url = require('base64url');
 var decay = require('decay'), hotScore = decay.redditHot();
+
+/**
+ * @swagger
+ * resourcePath: /videos
+ * description: All about API
+ */
+
 
 var Video = mongoose.model('Video', {
 
@@ -169,7 +176,7 @@ router.post("/", function (req, res, next)
         }
 });
 
-/**
+/*
  * @swagger
 
  *      summary: Works out the Surge Rating
