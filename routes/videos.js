@@ -127,7 +127,7 @@ router.get("/", function (req, res, next)
  * @swagger
  * path: /video
  * operations:
- *   -  httpMethod: PST
+ *   -  httpMethod: POST
  *      summary: Post a Video
  *      notes: These include title, url, up_vote, down_vote
  *      nickname: Videos
