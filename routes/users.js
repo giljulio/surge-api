@@ -127,7 +127,7 @@ router.get("/:user_id", function (req, res, next) {     // returns a users detai
  *          dataType: string
  */
 router.post("/authenticate", function (req, res, next) {        //If the user submits a correct email and password a token and expiration date will be generated
-   var query = User.where('email', req.body.email).where('password', req.body.password);
+   var query = User.where('email', req.body.email).where('password', md5(req.body.password));
     query.findOne(function (err, user) {
         if(err) {
             next(Boom.notFound("API Connection Failed"));
