@@ -133,14 +133,6 @@ router.get("/:user_id", function (req, res, next) {     // returns a users detai
  *          paramType: body
  *          required: true
  *          dataType: string
- *          response:
- *                200:
- *                description: pet response
- *                schema:
- *                type: array
- *                items:
- *                $ref: '#/definitions/Pet'
- *
  */
 router.post("/authenticate", function (req, res, next) {        //If the user submits a correct email and password a token and expiration date will be generated
    var query = User.where('email', req.body.email).where('password', req.body.password);
@@ -205,7 +197,7 @@ router.get("/:user_id/favs", [checkAuth, function(req, res, next){      //Exampl
 
 /**
  * @swagger
- * path: /users/user_id
+ * path: /user_id
  * operations:
  *   -  httpMethod: DELETE
  *      summary: Removes a user account and all of their tokens
@@ -259,6 +251,7 @@ router.delete("/:_id", function (req, res, next) {          //Deletes a user by 
 router.post("/", function(req, res, next) {
     var query = User.where({ $or:[{'email': req.body.email},{'username': req.body.username}]});
     query.findOne(function (err, user) {
+        console.log(user);
        if (err) {
            next(Boom.notFound("API Connection Failed"));
        }
