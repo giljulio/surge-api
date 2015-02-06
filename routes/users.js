@@ -71,7 +71,7 @@ for(var i=0; i<900000; i++) {
 
 /**
  * @swagger
- * path: /user/userID
+ * path: /userID
  * operations:
  *   -  httpMethod: GET
  *      summary: Get user ID's
@@ -106,33 +106,41 @@ router.get("/:user_id", function (req, res, next) {     // returns a users detai
 
 /**
  * @swagger
- * path: /users/authenticate
+ * path: /authenticate
  * operations:
  *   -  httpMethod: POST
  *      summary: Returns a token based on email and password
  *      notes: Email and password are checked, if they check out then a new token will be issues with an expiration date and these details will be stored in the DB.
  *      nickname: Authenticate
  *      consumes:
- *        - x-www-form-urlencoded
+ *        - application/x-www-form-urlencoded
  *      parameters:
  *        - name: email
  *          description: Your email Address
- *          paramType: form
+ *          paramType: body
  *          required: true
  *          dataType: string
  *        - name: password
  *          description: Your password
- *          paramType: form
+ *          paramType: body
  *          required: true
  *          dataType: string
+ *          response:
+ *                200:
+ *                description: pet response
+ *                schema:
+ *                type: array
+ *                items:
+ *                $ref: '#/definitions/Pet'
+ *
  */
 router.post("/authenticate", function (req, res, next) {        //If the user submits a correct email and password a token and expiration date will be generated
-   var query = User.where('email', req.body.email).where('password', md5(req.body.password));
+   var query = User.where('email', req.body.email).where('password', req.body.password);
     query.findOne(function (err, user) {
         if(err) {
-            next(Boom.notFound("API Connection Failed"));
+            next(Boom.notFound("DB Connection Failed"));
         } else if (user == null) {
-            next(Boom.notFound("Authentication failure for " + req.body.email));
+            next(Boom.unauthorized("Authentication failure for " + req.body.email));
         } else {
             var token = createToken();
             var timeStamp = newTimeStamp();
@@ -196,11 +204,11 @@ router.get("/:user_id/favs", [checkAuth, function(req, res, next){      //Exampl
  *      notes: A users account id is submitted and the document is then deleted from the database.
  *      nickname: deleteUser
  *      consumes:
- *        - x-www-form-urlencoded
+ *        - application/json
  *      parameters:
- *        - User ID: user_id
+ *        - name: user_id
  *          description: The users ID to delete
- *          paramType: form
+ *          paramType: query
  *          required: true
  *          dataType: string
  */
@@ -212,14 +220,14 @@ router.delete("/:_id", function (req, res, next) {          //Deletes a user by 
             res.send({message: "User with ID " + req.params.user_id + " has been deleted."});
         }
         else {
-            next(Boom.notFound("ERROR"));
+            next(Boom.notFound("User not found"));
         }
     });
 });
 
 /**
  * @swagger
- * path: /users
+ * path: /
  * operations:
  *   -  httpMethod: POST
  *      summary: Add a new user
