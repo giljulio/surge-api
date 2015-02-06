@@ -26,7 +26,15 @@ var User = mongoose.model('User', {
         index: true
     },
     password: String,
+    username: {
+        type: String,
+        trim: true,
+        lowercase: true,
+        unique: true,
+        index: true
+    },
     tokens: [Token]
+
 });
 
 var Token = mongoose.model('Token', {
@@ -249,7 +257,7 @@ router.delete("/:_id", function (req, res, next) {          //Deletes a user by 
  */
 
 router.post("/", function(req, res, next) {
-    var query = User.where('email', req.body.email);
+    var query = User.where({ $or:[{'email': req.body.email},{'username': req.body.username}]});
     query.findOne(function (err, user) {
        if (err) {
            next(Boom.notFound("API Connection Failed"));
@@ -258,6 +266,7 @@ router.post("/", function(req, res, next) {
            var newUser = new User ({
                email:req.body.email,
                password:md5(req.body.password),
+               username:req.body.username,
                token: createToken(),
                expiration: newTimeStamp()
            });
@@ -281,6 +290,7 @@ router.post("/", function(req, res, next) {
                        res.send({
                            email: req.body.email,
                            password: md5(req.body.password),
+                           username:req.body.username,
                            token: createToken(),
                            expiration: newTimeStamp()
                        });
@@ -290,6 +300,9 @@ router.post("/", function(req, res, next) {
        }
        else if (user.email == req.body.email) {
            next(Boom.unauthorized("The following email address: " + req.body.email + " already exists."));
+       }
+       else if (user.username == req.body.username) {
+           next(Boom.unauthorized("The following username: " + req.body.username + " already exists."));
        }
     });
 });

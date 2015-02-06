@@ -64,25 +64,35 @@ var Video = mongoose.model('Video', {
 
 /**
  * @swagger
- * path: /video
+ * path: /videos
  * operations:
  *   -  httpMethod: GET
  *      summary: Get backs a list videos
- *      notes: These include Site ID, Duration etc
+ *      notes: These include category, sort, skip, limit
  *      nickname: Videos
  *      consumes:
  *        - application/json
  *      parameters:
- *        - name: username
- *          description: Your username
+ *        - name: category
+ *          description: video category
+ *          paramType: query
+ *          required: true
+ *          dataType: number
+ *        - name: sort
+ *          description: video sorting
  *          paramType: query
  *          required: true
  *          dataType: string
- *        - name: password
- *          description: Your password
+ *        - name: skip
+ *          description: offset for videos returned
  *          paramType: query
  *          required: true
- *          dataType: string
+ *          dataType: number
+ *        - name: limit
+ *          description: limits how many videos are returned
+ *          paramType: query
+ *          required: true
+ *          dataType: number
  */
 
 router.get("/", function (req, res, next)
@@ -120,7 +130,7 @@ router.get("/", function (req, res, next)
     var query = Video.where(filter);
     query.skip(req.query.skip || 0).limit(req.query.limit || 30).sort(sort).find(function (err, video) {
         if(err) {
-            next(Boom.notFound("Video not found for this particular ID " + req.params.video_id));
+            next(Boom.notFound("Video not found for this particular ID " + req.params.url));
         }
         else
         {
@@ -132,25 +142,30 @@ router.get("/", function (req, res, next)
 
 /**
  * @swagger
- * path: /video
+ * path: /videos
  * operations:
  *   -  httpMethod: POST
  *      summary: Post a Video
- *      notes: These include title, url, up_vote, down_vote
+ *      notes: These include title, url, category
  *      nickname: Videos
  *      consumes:
  *        - application/json
  *      parameters:
- *        - name: username
- *          description: Your username
- *          paramType: query
+ *        - name: title
+ *          description: video title
+ *          paramType: form
  *          required: true
  *          dataType: string
- *        - name: password
- *          description: Your password
- *          paramType: query
+ *        - name: url
+ *          description: video url
+ *          paramType: form
  *          required: true
  *          dataType: string
+ *        - name: category
+ *          description: video category
+ *          paramType: form
+ *          required: true
+ *          dataType: number
  */
 router.post("/", function (req, res, next)
         {
@@ -158,8 +173,8 @@ router.post("/", function (req, res, next)
         var video = new Video({
             title: req.body.title,
             url: req.body.url,
-            up_vote: req.body.up_vote,
-            down_vote: req.body.down_vote,
+            up_vote: 0,
+            down_vote: 0,
             surge_rate: req.body.surge_rate,
             category: req.body.category
         });

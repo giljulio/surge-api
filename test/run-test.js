@@ -6,7 +6,7 @@ var suite = APIeasy.describe('your/awesome/api');
 
 var randnum = Math.floor(Math.random()*1111)
 
-suite.discuss('When using your awesome API')
+/*suite.discuss('When using your awesome API')
     .discuss('test email is stored correctly using the API')
     .use('localhost', 3000)
     .setHeader('Content-Type', 'application/json')
@@ -53,6 +53,17 @@ suite.discuss('When using your awesome API')
         assert.include(result.password, '52dcb810931e20f7aa2f49b3510d3805')
         //console.log(pass);
 
+    })
+    .export(module);*/
+
+suite.discuss('When using your awesome API')
+    .discuss('test password is stored correctly')
+    .use('localhost', 3000)
+    .setHeader('Content-Type', 'application/json')
+    .post('/videos', { title: "Far Cry 4 Video Review", up_vote: 421, down_vote: 78, url: "dop7lsV8k3s", category: 5 })
+    .expect("password that we just posted",  function (err, res, body){
+        var result = JSON.parse(body);
+        assert.include(result.category, 5)
     })
     .export(module);
 
