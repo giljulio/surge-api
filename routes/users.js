@@ -292,10 +292,14 @@ router.post("/", function(req, res, next) {
            }
        }
        else if (user.email == req.body.email) {
-           next(Boom.unauthorized("The following email address: " + req.body.email + " already exists."));
+           next(Boom.create(401, "The following email address: " + req.body.email + " already exists.", {
+               type: "email-exists"
+           }));
        }
        else if (user.username == (req.body.username).toLowerCase()) {
-           next(Boom.unauthorized("The following username: " + req.body.username + " already exists."));
+           next(Boom.create(401, "The following username: " + req.body.username + " already exists.", {
+               type:"username-exists"
+           }));
        }
     });
 });

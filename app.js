@@ -60,8 +60,12 @@ app.use(function(req, res, next) {
 
 app.use(function(err, req, res, next) {
     if(err.isBoom){
+        console.log(JSON.stringify(err));
         res.set(err.output.headers);
         res.status(err.output.statusCode);
+        if(err.data && err.data.type){
+            err.output.payload.type = err.data.type;
+        }
         res.send(err.output.payload);
         res.end();
     } else if (app.get('env') === 'development') {
