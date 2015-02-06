@@ -104,7 +104,9 @@ router.get("/:user_id", function (req, res, next) {     // returns a users detai
     query.findOne(function (err, user) {
         if(err) {
             if(err.name == 'CastError'){
-                next(Boom.notFound("User not found for id " + req.params.user_id));
+                next(Boom.create(403, "User not found for id " + req.params.user_id, {
+                    type: "user_id-not-found"
+                }));
             }
         } else {
             res.send({id:user._id, email:user.email});
@@ -233,7 +235,6 @@ router.delete("/:_id", function (req, res, next) {          //Deletes a user by 
             next(Boom.create(404, "user id not found: " + req.params.user_id, {
                 type:"user-not-found"
             }));
-            next(Boom.notFound("User not found"));
         }
     });
 });

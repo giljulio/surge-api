@@ -130,7 +130,9 @@ router.get("/", function (req, res, next)
     var query = Video.where(filter);
     query.skip(req.query.skip || 0).limit(req.query.limit || 30).sort(sort).find(function (err, video) {
         if(err) {
-            next(Boom.notFound("Video not found for this particular ID " + req.params.url));
+            next(Boom.create(403, "Video not found for this particular ID " + req.params.url, {
+                type: "video_id-not-found"
+            }));
         }
         else
         {
@@ -179,7 +181,9 @@ router.post("/", function (req, res, next)
             category: req.body.category
         });
         if (req.body.title.length < 6) {
-            next(Boom.unauthorized("The title needs to be at least six characters."));
+            next(Boom.create(401, "The title needs to be at least six characters.", {
+                type: "invalid-video-title"
+            }));
         } else {
             video.save(function (err) {
                 if (err) {
