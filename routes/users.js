@@ -294,7 +294,7 @@ router.post("/", function(req, res, next) {
        else if (user.email == req.body.email) {
            next(Boom.unauthorized("The following email address: " + req.body.email + " already exists."));
        }
-       else if (user.username == req.body.username) {
+       else if (user.username == (req.body.username).toLowerCase()) {
            next(Boom.unauthorized("The following username: " + req.body.username + " already exists."));
        }
     });
