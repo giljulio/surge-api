@@ -138,7 +138,9 @@ router.post("/authenticate", function (req, res, next) {        //If the user su
    var query = User.where('email', req.body.email).where('password', req.body.password);
     query.findOne(function (err, user) {
         if(err) {
-            next(Boom.notFound("DB Connection Failed"));
+            next(Boom.create(404, "DB Connection Failed", {
+                type: "failed-connection"
+            }));
         } else if (user == null) {
             next(Boom.create(401, "invalid username or password for " + req.body.email, {
                 type:"incorrect-credentials"
@@ -168,7 +170,9 @@ var checkAuth = exports.checkAuth = function (req, res, next) { //Function that 
     query.findOne(function (err, tok) {
         console.log(tok);
         if(err) {
-            next(Boom.notFound("DB Connection Failed"));
+            next(Boom.create(404, "DB Connection Failed", {
+                type: "failed-connection"
+            }));
         }
         else if (tok == null) {
             next(Boom.create(403, "Cannot find user.", {
@@ -262,7 +266,9 @@ router.post("/", function(req, res, next) {
     query.findOne(function (err, user) {
         console.log(user);
        if (err) {
-           next(Boom.notFound("API Connection Failed"));
+           next(Boom.create(404, "DB Connection Failed", {
+               type: "failed-connection"
+           }));
        }
        else if (user == null) {
            var newUser = new User ({
@@ -277,11 +283,15 @@ router.post("/", function(req, res, next) {
            var dotSymbol = req.body.email.lastIndexOf(".");
 
            if (req.body.password.length < 8) {
-               next(Boom.unauthorized("The password entered needs to be more than 8 characters."));
+               next(Boom.create(401, "The password entered needs to be more than 8 characters.", {
+                   type: "invalid-password"
+               }));
            }
            // Check for @ symbol in email address
            else if (atSymbol < 1 || dotSymbol < atSymbol + 2 || dotSymbol + 1 >= req.body.email.length) {
-               next(Boom.unauthorized("The following email address: " + req.body.email + " is invalid."));
+               next(Boom.create(401, "The following email address: " + req.body.email + " is invalid.", {
+                   type: "invalid-email"
+               }));
            }
            else {
                newUser.save(function (err) {
