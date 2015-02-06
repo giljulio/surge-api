@@ -140,7 +140,9 @@ router.post("/authenticate", function (req, res, next) {        //If the user su
         if(err) {
             next(Boom.notFound("DB Connection Failed"));
         } else if (user == null) {
-            next(Boom.unauthorized("Authentication failure for " + req.body.email));
+            next(Boom.create(401, "invalid username or password for " + req.body.email, {
+                type:"incorrect-credentials"
+            }));
         } else {
             var token = createToken();
             var timeStamp = newTimeStamp();
@@ -169,7 +171,9 @@ var checkAuth = exports.checkAuth = function (req, res, next) { //Function that 
             next(Boom.notFound("DB Connection Failed"));
         }
         else if (tok == null) {
-            next(Boom.unauthorized("User not Found"));
+            next(Boom.create(403, "Cannot find user.", {
+                type:"username-not-found"
+            }));
         } else {
             for(var i = 0; i < tok.tokens.length; i++){
                 if(tok.tokens[i].token == token){
@@ -177,7 +181,9 @@ var checkAuth = exports.checkAuth = function (req, res, next) { //Function that 
                         console.log("Authentication Successful!");
                         next();
                     } else {
-                        next(Boom.unauthorized("Token out of date!"));
+                        next(Boom.create(403, "The token is out of date!", {
+                            type:"token-expired"
+                        }));
                     }
                     break;
                 }
@@ -220,6 +226,9 @@ router.delete("/:_id", function (req, res, next) {          //Deletes a user by 
             res.send({message: "User with ID " + req.params.user_id + " has been deleted."});
         }
         else {
+            next(Boom.create(404, "user id not found: " + req.params.user_id, {
+                type:"user-not-found"
+            }));
             next(Boom.notFound("User not found"));
         }
     });
