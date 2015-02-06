@@ -43,6 +43,10 @@ var Video = mongoose.model('Video', {
     {
         type:Number
     },
+    controversial:
+    {
+        type:Number
+    },
     url:
     {
         type: String,
@@ -123,6 +127,7 @@ router.get("/", function (req, res, next)
         }
         else if(req.query.sort == "controversial"){
             sort = {
+                controversial: +1
             }
         }
     }
@@ -214,9 +219,52 @@ setInterval(function () {
                 v.surge_rate = surge_rating;
                 v.save();
                 console.log(v)
+                /*var winvotes;
+                var loosevotes;
+
+                if (v.up_vote> v.down_vote) {
+                    winvotes = v.up_vote;
+                    loosevotes = v.down_vote;
+                }
+                else{
+                    winvotes = v.down_vote;
+                    loosevotes = v.up_vote;
+                }
+                var loosewin_ratio = loosevotes / winvotes;
+                var total_score = v.up_vote + v.down_vote;
+                v.controversial = total_score * loosewin_ratio;*/
+                v.controversial = standardDeviation([v.up_vote, v.down_vote]);
+               // 3777.5996624947265
+                //6331.371951219512
             });
         }
     });
 }, 1000 * 60 * 1); // run every 5 minutes, say
+
+function standardDeviation(values){
+    var avg = average(values);
+
+    var squareDiffs = values.map(function(value){
+        var diff = value - avg;
+        var sqrDiff = diff * diff;
+        return sqrDiff;
+    });
+
+    var avgSquareDiff = average(squareDiffs);
+
+    var stdDev = Math.sqrt(avgSquareDiff);
+    return stdDev;
+}
+
+function average(data){
+    var sum = data.reduce(function(sum, value){
+        return sum + value;
+    }, 0);
+
+    var avg = sum / data.length;
+    return avg;
+}
+
+
 
 module.exports = router;
