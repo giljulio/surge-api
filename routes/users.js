@@ -241,7 +241,7 @@ router.delete("/:_id", function (req, res, next) {          //Deletes a user by 
 
 /**
  * @swagger
- * path: /
+ * path: /users
  * operations:
  *   -  httpMethod: POST
  *      summary: Add a new user
@@ -250,13 +250,18 @@ router.delete("/:_id", function (req, res, next) {          //Deletes a user by 
  *      consumes:
  *        - application/json
  *      parameters:
- *        - name: username
- *          description: Your username
+ *        - name: email
+ *          description: your email
  *          paramType: body
  *          required: true
  *          dataType: string
  *        - name: password
- *          description: Your password
+ *          description: your password
+ *          paramType: body
+ *          required: true
+ *          dataType: string
+ *        - name: username
+ *          description: your username
  *          paramType: body
  *          required: true
  *          dataType: string
