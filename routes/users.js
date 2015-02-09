@@ -125,8 +125,8 @@ router.get("/:user_id", function (req, res, next) {     // returns a users detai
  *      consumes:
  *        - application/x-www-form-urlencoded
  *      parameters:
- *        - name: email
- *          description: Your email Address
+ *        - name: userLogin
+ *          description: Your email Address or Username
  *          paramType: body
  *          required: true
  *          dataType: string
