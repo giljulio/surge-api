@@ -270,7 +270,6 @@ router.delete("/:_id", function (req, res, next) {          //Deletes a user by 
 router.post("/", function(req, res, next) {
     var query = User.where({ $or:[{'email': req.body.email},{'username': (req.body.username.toLowerCase())}]});
     query.findOne(function (err, user) {
-        console.log(user);
        if (err) {
            next(Boom.create(404, "DB Connection Failed", {
                type: "failed-connection"
