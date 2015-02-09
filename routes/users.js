@@ -268,7 +268,7 @@ router.delete("/:_id", function (req, res, next) {          //Deletes a user by 
  */
 
 router.post("/", function(req, res, next) {
-    var query = User.where({ $or:[{'email': req.body.email},{'username': req.body.username}]});
+    var query = User.where({ $or:[{'email': req.body.email},{'username': (req.body.username.toLowerCase())}]});
     query.findOne(function (err, user) {
         console.log(user);
        if (err) {
@@ -321,7 +321,7 @@ router.post("/", function(req, res, next) {
                type: "email-exists"
            }));
        }
-       else if (user.username == (req.body.username).toLowerCase()) {
+       else if (user.username == req.body.username.toLowerCase()) {
            next(Boom.create(401, "The following username: " + req.body.username + " already exists.", {
                type:"username-exists"
            }));
