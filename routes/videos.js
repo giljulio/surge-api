@@ -200,6 +200,30 @@ router.post("/", function (req, res, next)
         }
 });
 
+router.post("/vote", function (req, res, next)
+{
+    console.log(JSON.stringify(req.body) + "\n\n");
+    var video = new Video({
+        title: req.body.title,
+        url: req.body.url,
+        up_vote: 0,
+        down_vote: 0,
+        surge_rate: req.body.surge_rate,
+        category: req.body.category
+    });
+    if (req.body.title.length < 6) {
+        next(Boom.unauthorized("The title needs to be at least six characters."));
+    } else {
+        video.save(function (err) {
+            if (err) {
+                next(err);
+            } else {
+                res.send(video);
+            }
+        });
+    }
+});
+
 /*
  * @swagger
 

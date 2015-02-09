@@ -137,7 +137,7 @@ router.get("/:user_id", function (req, res, next) {     // returns a users detai
  *          dataType: string
  */
 router.post("/authenticate", function (req, res, next) {        //If the user submits a correct email and password a token and expiration date will be generated
-   var query = User.where('email', req.body.email).where('password', req.body.password);
+   var query = User.where({ $or:[{'email': req.body.userLogin},{'username': (req.body.userLogin.toLowerCase())}]}).where({'password': md5(req.body.password)});
     query.findOne(function (err, user) {
         if(err) {
             next(Boom.create(404, "DB Connection Failed", {
@@ -151,26 +151,21 @@ router.post("/authenticate", function (req, res, next) {        //If the user su
             var token = createToken();
             var timeStamp = newTimeStamp();
             res.send({token: token, timestamp: timeStamp});
-            console.log(user);
             var newToken = new Token ({
                 token: token,
                 expiration: timeStamp
             });
             user.tokens.push(newToken);
             user.save();
-            console.log(user);
         }
     });
 });
 
 var checkAuth = exports.checkAuth = function (req, res, next) { //Function that checks their authentication token as to whether it's valid or not
-    console.log("checkAuthorisation");
     var token = req.headers.authorization;
     var userID = req.params.user_id;
-    console.log(token);
     var query = User.where({_id: req.params.user_id, 'tokens.token': token });
     query.findOne(function (err, tok) {
-        console.log(tok);
         if(err) {
             next(Boom.create(404, "DB Connection Failed", {
                 type: "failed-connection"
@@ -184,7 +179,6 @@ var checkAuth = exports.checkAuth = function (req, res, next) { //Function that 
             for(var i = 0; i < tok.tokens.length; i++){
                 if(tok.tokens[i].token == token){
                     if((tok.tokens[i].expiration + expirationTime) > newTimeStamp()) {
-                        console.log("Authentication Successful!");
                         next();
                     } else {
                         next(Boom.create(403, "The token is out of date!", {
@@ -200,7 +194,6 @@ var checkAuth = exports.checkAuth = function (req, res, next) { //Function that 
 };
 
 router.get("/:user_id/favs", [checkAuth, function(req, res, next){      //Example function of calling a function that requires a user to be authorised
-    console.log("It authenticated the token!");
     res.send({response: "Success!"});
 }]);
 
@@ -225,10 +218,8 @@ router.get("/:user_id/favs", [checkAuth, function(req, res, next){      //Exampl
  *          dataType: string
  */
 router.delete("/:_id", function (req, res, next) {          //Deletes a user by ID
-    console.log("Deleting User " + req.params.user_id);
     User.remove({ _id: req.params.user_id }, function(err) {
         if (!err) {
-            console.log("Deleting User " + req.params.user_id);
             res.send({message: "User with ID " + req.params.user_id + " has been deleted."});
         }
         else {
@@ -270,6 +261,7 @@ router.delete("/:_id", function (req, res, next) {          //Deletes a user by 
 router.post("/", function(req, res, next) {
     var query = User.where({ $or:[{'email': req.body.email},{'username': (req.body.username.toLowerCase())}]});
     query.findOne(function (err, user) {
+        console.log(user);
        if (err) {
            next(Boom.create(404, "DB Connection Failed", {
                type: "failed-connection"
@@ -283,7 +275,6 @@ router.post("/", function(req, res, next) {
                token: createToken(),
                expiration: newTimeStamp()
            });
-           console.log(req.body.email);
            var atSymbol = req.body.email.indexOf("@");
            var dotSymbol = req.body.email.lastIndexOf(".");
 
