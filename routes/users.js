@@ -115,7 +115,17 @@ for(var i=0; i<900000; i++) {
  */
 
 router.get("/:user_id", function (req, res, next) {     // returns a users details based on their ID
-    var query = User.where({_id: req.params.user_id }).select("_id email");
+    /*if(checkAuth) {
+        console.log("true!");
+        var queryValue = "email username";
+        var resultValue = "email:user.email, username:user.username";
+    }
+    else {
+        console.log("false!");
+        var queryValue = "username";
+        var resultValue = "username:user.username";
+    }*/
+    var query = User.where({_id: req.params.user_id}).select("_id email username");
     query.findOne(function (err, user) {
         if(err) {
             if(err.name == 'CastError'){
@@ -124,7 +134,7 @@ router.get("/:user_id", function (req, res, next) {     // returns a users detai
                 }));
             }
         } else {
-            res.send({id:user._id, email:user.email});
+            res.send({id:user._id, email:user.email, username:user.username});
         }
     });
 });
@@ -177,10 +187,43 @@ router.post("/authenticate", function (req, res, next) {        //If the user su
 });
 
 
+var checkAuth = exports.checkAuth = function (req, res, next) { //Function that checks their authentication token as to whether it's valid or not, not forced so will return a value letting the client they are not authenticated but they can carry on
+    var token = req.headers.authorization;
+    var userID = req.params.user_id;
+    console.log("Token: "+token+" userID: "+userID);
+    var query = User.where({_id: req.params.user_id, 'tokens.token': token });
+    query.findOne(function (err, tok) {
+        if(err) {
+            next(Boom.create(404, "DB Connection Failed", {
+                type: "failed-connection"
+            }));
+            return false;
+        }
+        else if (tok == null) {
+            next(Boom.create(403, "Cannot find token.", {
+                type:"token-not-found"
+            }));
+            return false;
+        } else {
+            for(var i = 0; i < tok.tokens.length; i++){
+                if(tok.tokens[i].token == token){
+                    if((tok.tokens[i].expiration + expirationTime) > newTimeStamp()) {
+                        return true;
+                    } else {
+                        next(Boom.create(403, "The token is out of date!", {
+                            type:"token-expired"
+                        }));
+                        return false;
+                    }
+                    break;
+                }
+            }
+        }
+    });
 
+};
 
-
-var checkAuth = exports.checkAuth = function (req, res, next) { //Function that checks their authentication token as to whether it's valid or not
+var forceAuth = exports.forceAuth = function (req, res, next) { //Function that checks their authentication token as to whether it's valid or not, forced validation so it will only allow the function to run if they are authenticated
     var token = req.headers.authorization;
     var userID = req.params.user_id;
     console.log("Token: "+token+" userID: "+userID);
@@ -213,7 +256,7 @@ var checkAuth = exports.checkAuth = function (req, res, next) { //Function that 
 
 };
 
-router.get("/:user_id/favs", [checkAuth, function(req, res, next){      //Example function of calling a function that requires a user to be authorised
+router.get("/:user_id/favs", [forceAuth, function(req, res, next){      //Example function of calling a function that requires a user to be authorised
     res.send({response: "Success!"});
 }]);
 
@@ -237,7 +280,7 @@ router.get("/:user_id/favs", [checkAuth, function(req, res, next){      //Exampl
  *          required: true
  *          dataType: string
  */
-router.delete("/:user_id",[checkAuth, function (req, res, next) {          //Deletes a user by ID
+router.delete("/:user_id",[forceAuth, function (req, res, next) {          //Deletes a user by ID
     User.remove({ _id: req.params.user_id }, function(err) {
         if (!err) {
             res.send({message: "User with ID " + req.params.user_id + " has been deleted."});
