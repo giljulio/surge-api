@@ -33,8 +33,19 @@ var User = mongoose.model('User', {
         unique: true,
         index: true
     },
-    tokens: [Token]
+    tokens: [Token],
+    achievements: [userAchievement]
+});
 
+var userAchievement = mongoose.model('userAchievement', {
+    achievementId: {
+        type:String,
+        index:true
+    },
+    dateAchieved: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 var Token = mongoose.model('Token', {
@@ -46,6 +57,9 @@ var Token = mongoose.model('Token', {
         type:Number
     }
 });
+
+
+
 
 function randomStringAsBase64Url(size) {
     return base64url(crypto.randomBytes(size));
@@ -77,8 +91,6 @@ for(var i=0; i<900000; i++) {
     numberSuffix=numberSuffix+1;
 }*/
 
-
-/*
 /**
  * @swagger
  * path: /userID
@@ -102,10 +114,8 @@ for(var i=0; i<900000; i++) {
  *          dataType: string
  */
 
-
-/*
 router.get("/:user_id", function (req, res, next) {     // returns a users details based on their ID
-    var query = User.where({_id: req.params.user_id });
+    var query = User.where({_id: req.params.user_id }).select("_id email");
     query.findOne(function (err, user) {
         if(err) {
             if(err.name == 'CastError'){
@@ -118,7 +128,6 @@ router.get("/:user_id", function (req, res, next) {     // returns a users detai
         }
     });
 });
-*/
 
 /**
  * @swagger
@@ -126,7 +135,7 @@ router.get("/:user_id", function (req, res, next) {     // returns a users detai
  * operations:
  *   -  httpMethod: POST
  *      summary: Returns a token based on email and password
- *      notes: Email and password are checked, if they check out then a new token will be issues with an expiration date and these details will be stored in the DB.
+ *      notes: Email or Username and password are checked, if they check out then a new token will be issues with an expiration date and these details will be stored in the DB.
  *      nickname: Authenticate
  *      consumes:
  *        - application/x-www-form-urlencoded
@@ -166,6 +175,10 @@ router.post("/authenticate", function (req, res, next) {        //If the user su
         }
     });
 });
+
+
+
+
 
 var checkAuth = exports.checkAuth = function (req, res, next) { //Function that checks their authentication token as to whether it's valid or not
     var token = req.headers.authorization;
@@ -213,7 +226,7 @@ router.get("/:user_id/favs", [checkAuth, function(req, res, next){      //Exampl
  * operations:
  *   -  httpMethod: DELETE
  *      summary: Removes a user account and all of their tokens
- *      notes: A users account id is submitted and the document is then deleted from the database.
+ *      notes: A users account id is submitted and the document is then deleted from the database. The token is required to be submitted in the authorisation and the user will only be deleted if the token can be found.
  *      nickname: deleteUser
  *      consumes:
  *        - application/json
