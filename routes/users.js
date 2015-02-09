@@ -268,12 +268,15 @@ router.post("/", function(req, res, next) {
            }));
        }
        else if (user == null) {
+           var token = new Token ({
+               token: createToken(),
+               expiration: newTimeStamp()
+           })
            var newUser = new User ({
                email:req.body.email,
                password:md5(req.body.password),
                username:req.body.username,
-               token: createToken(),
-               expiration: newTimeStamp()
+               tokens: token
            });
            var atSymbol = req.body.email.indexOf("@");
            var dotSymbol = req.body.email.lastIndexOf(".");
@@ -299,8 +302,7 @@ router.post("/", function(req, res, next) {
                            email: req.body.email,
                            password: md5(req.body.password),
                            username:req.body.username,
-                           token: createToken(),
-                           expiration: newTimeStamp()
+                           tokens: token
                        });
                    }
                });
