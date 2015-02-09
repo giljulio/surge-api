@@ -77,6 +77,8 @@ for(var i=0; i<900000; i++) {
     numberSuffix=numberSuffix+1;
 }*/
 
+
+/*
 /**
  * @swagger
  * path: /userID
@@ -99,6 +101,9 @@ for(var i=0; i<900000; i++) {
  *          required: true
  *          dataType: string
  */
+
+
+/*
 router.get("/:user_id", function (req, res, next) {     // returns a users details based on their ID
     var query = User.where({_id: req.params.user_id });
     query.findOne(function (err, user) {
@@ -113,6 +118,7 @@ router.get("/:user_id", function (req, res, next) {     // returns a users detai
         }
     });
 });
+*/
 
 /**
  * @swagger
@@ -164,6 +170,7 @@ router.post("/authenticate", function (req, res, next) {        //If the user su
 var checkAuth = exports.checkAuth = function (req, res, next) { //Function that checks their authentication token as to whether it's valid or not
     var token = req.headers.authorization;
     var userID = req.params.user_id;
+    console.log("Token: "+token+" userID: "+userID);
     var query = User.where({_id: req.params.user_id, 'tokens.token': token });
     query.findOne(function (err, tok) {
         if(err) {
@@ -172,8 +179,8 @@ var checkAuth = exports.checkAuth = function (req, res, next) { //Function that 
             }));
         }
         else if (tok == null) {
-            next(Boom.create(403, "Cannot find user.", {
-                type:"username-not-found"
+            next(Boom.create(403, "Cannot find token.", {
+                type:"token-not-found"
             }));
         } else {
             for(var i = 0; i < tok.tokens.length; i++){
@@ -217,7 +224,7 @@ router.get("/:user_id/favs", [checkAuth, function(req, res, next){      //Exampl
  *          required: true
  *          dataType: string
  */
-router.delete("/:_id", function (req, res, next) {          //Deletes a user by ID
+router.delete("/:user_id",[checkAuth, function (req, res, next) {          //Deletes a user by ID
     User.remove({ _id: req.params.user_id }, function(err) {
         if (!err) {
             res.send({message: "User with ID " + req.params.user_id + " has been deleted."});
@@ -228,7 +235,7 @@ router.delete("/:_id", function (req, res, next) {          //Deletes a user by 
             }));
         }
     });
-});
+}]);
 
 /**
  * @swagger
@@ -320,30 +327,6 @@ router.post("/", function(req, res, next) {
        }
     });
 });
-
-/**
- * @swagger
- * path: /
- * operations:
- *   -  httpMethod: GET
- *      summary: Login with username and password
- *      notes: Returns a user based on username
- *      responseClass: User
- *      nickname: login
- *      consumes:
- *        - text/html
- *      parameters:
- *        - name: username
- *          description: Your username
- *          paramType: query
- *          required: true
- *          dataType: string
- *        - name: password
- *          description: Your password
- *          paramType: query
- *          required: true
- *          dataType: string
- */
 
 /*
     Creates a user if it doesn't exist. If it does exist it checks if the
