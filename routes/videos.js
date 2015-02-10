@@ -31,12 +31,12 @@ var Video = mongoose.model('Video', {
     },
     up_vote:
     {
-        type:[String],
+        type:Number,
         required: true
     },
     down_vote:
     {
-        type:[String],
+        type:Number,
         required: true
     },
     surge_rate:
@@ -122,7 +122,7 @@ router.get("/", function (req, res, next)
         }
         else if(req.query.sort == "top"){
             sort = {
-                up_vote: -1
+                top: -1
             };
         }
         else if(req.query.sort == "controversial"){
@@ -133,15 +133,16 @@ router.get("/", function (req, res, next)
     }
 
     var query = Video.where(filter);
-    query.skip(req.query.skip || 0).limit(req.query.limit || 30).sort(sort).find(function (err, video) {
+    query.skip(req.query.skip || 0)
+        .limit(req.query.limit || 30)
+        .sort(sort)
+        .find(function (err, videos) {
         if(err) {
             next(Boom.create(403, "Video not found for this particular ID " + req.params.url, {
                 type: "video_id-not-found"
             }));
-        }
-        else
-        {
-            res.send(video);
+        } else {
+            res.send(videos);
         }
     });
 });
@@ -180,8 +181,8 @@ router.post("/", function (req, res, next)
         var video = new Video({
             title: req.body.title,
             url: req.body.url,
-            up_vote: [],
-            down_vote: [],
+            up_vote: 0,
+            down_vote: 0,
             surge_rate: req.body.surge_rate,
             category: req.body.category
         });
@@ -231,12 +232,12 @@ router.post("/vote", function (req, res, next)
  *      notes: It gets the number of up and down votes and then uses the timestamp to work out the rating
  *      notes: Uses decay.js to use the reddit algorithm
  */
-/*setInterval(function () {
+setInterval(function () {
     var query = Video.where({});
     query.find(function (err, videos) {
         if(!err) {
             videos.forEach(function (v) {
-                var surge_rating = hotScore(v.up_vote.count, v.down_vote.count, v.timestamp);
+                var surge_rating = hotScore(v.up_vote, v.down_vote, v.timestamp);
                 // save so that next GET /entry/ gets an updated ordering
                 v.surge_rate = surge_rating;
                 v.save();
@@ -255,18 +256,21 @@ router.post("/vote", function (req, res, next)
                 var loosewin_ratio = loosevotes / winvotes;
                 var total_score = v.up_vote + v.down_vote;
                 v.controversial = total_score * loosewin_ratio;*/
-                //v.controversial = standardDeviation([v.up_vote, v.down_vote]);
+                v.controversial = standardDeviation([v.up_vote, v.down_vote]);
                // 3777.5996624947265
                 //6331.371951219512
-            /*});
+            });
         }
     });
-}, 1000 * 60 * 1); */
+}, 1000 * 60 * 1);
 
 // run every 5 minutes, say
 
 function standardDeviation(values){
+
+    console.log(values);
     var avg = average(values);
+    console.log(avg);
 
     var squareDiffs = values.map(function(value){
         var diff = value - avg;
@@ -274,9 +278,22 @@ function standardDeviation(values){
         return sqrDiff;
     });
 
-    var avgSquareDiff = average(squareDiffs);
+    console.log(squareDiffs);
 
+    var avgSquareDiff = average(squareDiffs);
+    console.log(avgSquareDiff);
     var stdDev = Math.sqrt(avgSquareDiff);
+
+    //if (avg > 1000) {
+    //    stdDev + 1;
+    //}
+    //if (avg >= 0 && avg <= 100 ) {
+    //    stdDev + 3;
+    //}
+    //if (avg >= 100  && avg <= 1000){
+    //    stdDev +2;
+    //}
+    console.log(stdDev);
     return stdDev;
 }
 
