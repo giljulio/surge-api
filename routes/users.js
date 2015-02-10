@@ -92,6 +92,35 @@ for(var i=0; i<900000; i++) {
 }*/
 
 /**
+ * Function that checks their authentication token as to whether it's valid or not,
+ * not forced so will return a value letting the client they are not authenticated but they can carry on
+ */
+var checkAuth = exports.checkAuth = function (req, res, next) {
+    var query = User.where({_id: req.params.user_id, 'tokens.token': req.headers.authorization});
+    query.findOne(function (err, tok) {
+        if(err) {
+            next(Boom.create(404, "DB Connection Failed", {
+                type: "failed-connection"
+            }));
+        } else if (tok == null) {
+            req.user = null;
+            next();
+        } else {
+            for(var i = 0; i < tok.tokens.length; i++){
+                if(tok.tokens[i].token == req.headers.authorization && (tok.tokens[i].expiration + expirationTime) > newTimeStamp()) {
+                    req.user = {};
+                    req.user.id = tok._id;
+                    next();
+                    return;
+                }
+            }
+            req.user = null;
+            next();
+        }
+    });
+};
+
+/**
  * @swagger
  * path: /userID
  * operations:
@@ -114,30 +143,33 @@ for(var i=0; i<900000; i++) {
  *          dataType: string
  */
 
-router.get("/:user_id", function (req, res, next) {     // returns a users details based on their ID
-    /*if(checkAuth) {
-        console.log("true!");
-        var queryValue = "email username";
-        var resultValue = "email:user.email, username:user.username";
+router.get("/:user_id", [checkAuth, function (req, res, next) {     // returns a users details based on their ID
+    console.log("the value of checkauth is: " );
+    var selects = "_id username";
+    if(req.user && req.params.user_id == req.user.id){
+        selects +=" email";
     }
-    else {
-        console.log("false!");
-        var queryValue = "username";
-        var resultValue = "username:user.username";
-    }*/
-    var query = User.where({_id: req.params.user_id}).select("_id email username");
+    console.log(selects);
+    var query = User.where({_id: req.params.user_id}).select(selects);
     query.findOne(function (err, user) {
         if(err) {
-            if(err.name == 'CastError'){
-                next(Boom.create(403, "User not found for id " + req.params.user_id, {
-                    type: "user_id-not-found"
-                }));
-            }
+            //next(Boom.)
+            res.send("error1");
         } else {
-            res.send({id:user._id, email:user.email, username:user.username});
+            if(user){
+                var userRes = {
+                    id:user._id, username:user.username};
+                if(user.email){
+                    userRes.email = user.email;
+                }
+                res.send(userRes);
+            } else {
+                res.send("error2");
+                //next(Boom.)
+            }
         }
     });
-});
+}]);
 
 /**
  * @swagger
@@ -187,41 +219,8 @@ router.post("/authenticate", function (req, res, next) {        //If the user su
 });
 
 
-var checkAuth = exports.checkAuth = function (req, res, next) { //Function that checks their authentication token as to whether it's valid or not, not forced so will return a value letting the client they are not authenticated but they can carry on
-    var token = req.headers.authorization;
-    var userID = req.params.user_id;
-    console.log("Token: "+token+" userID: "+userID);
-    var query = User.where({_id: req.params.user_id, 'tokens.token': token });
-    query.findOne(function (err, tok) {
-        if(err) {
-            next(Boom.create(404, "DB Connection Failed", {
-                type: "failed-connection"
-            }));
-            return false;
-        }
-        else if (tok == null) {
-            next(Boom.create(403, "Cannot find token.", {
-                type:"token-not-found"
-            }));
-            return false;
-        } else {
-            for(var i = 0; i < tok.tokens.length; i++){
-                if(tok.tokens[i].token == token){
-                    if((tok.tokens[i].expiration + expirationTime) > newTimeStamp()) {
-                        return true;
-                    } else {
-                        next(Boom.create(403, "The token is out of date!", {
-                            type:"token-expired"
-                        }));
-                        return false;
-                    }
-                    break;
-                }
-            }
-        }
-    });
 
-};
+
 
 var forceAuth = exports.forceAuth = function (req, res, next) { //Function that checks their authentication token as to whether it's valid or not, forced validation so it will only allow the function to run if they are authenticated
     var token = req.headers.authorization;
