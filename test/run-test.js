@@ -54,16 +54,27 @@ suite.discuss('When using your awesome API')
         //console.log(pass);
 
     })
-    .export(module);*/
+    .export(module);
 
 suite.discuss('When using your awesome API')
-    .discuss('test password is stored correctly')
+    .discuss('post video')
     .use('localhost', 3000)
     .setHeader('Content-Type', 'application/json')
     .post('/videos', { title: "Far Cry 4 Video Review", up_vote: 421, down_vote: 78, url: "dop7lsV8k3s", category: 5 })
     .expect("password that we just posted",  function (err, res, body){
         var result = JSON.parse(body);
         assert.include(result.category, 5)
+    })
+    .export(module);*/
+
+suite.discuss('When using your awesome API')
+    .discuss('change up_votes & down_votes to empty arrays')
+    .use('localhost', 3000)
+    .setHeader('Content-Type', 'application/json')
+    .put('/videos', { title: "Far Cry 4 Video Review", up_vote: [], down_vote: []})
+    .expect("up_votes & down_votes to be updated",  function (err, res, body){
+        var result = JSON.parse(body);
+        assert.include(result.up_vote, [])
     })
     .export(module);
 

@@ -31,12 +31,12 @@ var Video = mongoose.model('Video', {
     },
     up_vote:
     {
-        type:Number,
+        type:[String],
         required: true
     },
     down_vote:
     {
-        type:Number,
+        type:[String],
         required: true
     },
     surge_rate:
@@ -180,8 +180,8 @@ router.post("/", function (req, res, next)
         var video = new Video({
             title: req.body.title,
             url: req.body.url,
-            up_vote: 0,
-            down_vote: 0,
+            up_vote: [],
+            down_vote: [],
             surge_rate: req.body.surge_rate,
             category: req.body.category
         });
@@ -231,14 +231,12 @@ router.post("/vote", function (req, res, next)
  *      notes: It gets the number of up and down votes and then uses the timestamp to work out the rating
  *      notes: Uses decay.js to use the reddit algorithm
  */
-setInterval(function () {
+/*setInterval(function () {
     var query = Video.where({});
     query.find(function (err, videos) {
         if(!err) {
             videos.forEach(function (v) {
-                console.log(v.down_vote);
-                console.log(v.up_vote);
-                var surge_rating = hotScore(v.up_vote, v.down_vote, v.timestamp);
+                var surge_rating = hotScore(v.up_vote.count, v.down_vote.count, v.timestamp);
                 // save so that next GET /entry/ gets an updated ordering
                 v.surge_rate = surge_rating;
                 v.save();
@@ -257,13 +255,15 @@ setInterval(function () {
                 var loosewin_ratio = loosevotes / winvotes;
                 var total_score = v.up_vote + v.down_vote;
                 v.controversial = total_score * loosewin_ratio;*/
-                v.controversial = standardDeviation([v.up_vote, v.down_vote]);
+                //v.controversial = standardDeviation([v.up_vote, v.down_vote]);
                // 3777.5996624947265
                 //6331.371951219512
-            });
+            /*});
         }
     });
-}, 1000 * 60 * 1); // run every 5 minutes, say
+}, 1000 * 60 * 1); */
+
+// run every 5 minutes, say
 
 function standardDeviation(values){
     var avg = average(values);
