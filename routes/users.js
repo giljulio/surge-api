@@ -153,8 +153,9 @@ router.get("/:user_id", [checkAuth, function (req, res, next) {     // returns a
     var query = User.where({_id: req.params.user_id}).select(selects);
     query.findOne(function (err, user) {
         if(err) {
-            //next(Boom.)
-            res.send("error1");
+            next(Boom.create(404, "DB Connection Failed", {
+                type: "failed-connection"
+            }));
         } else {
             if(user){
                 var userRes = {
@@ -164,8 +165,9 @@ router.get("/:user_id", [checkAuth, function (req, res, next) {     // returns a
                 }
                 res.send(userRes);
             } else {
-                res.send("error2");
-                //next(Boom.)
+                next(Boom.create(404, "user id not found: " + req.params.user_id, {
+                    type:"user-not-found"
+                }));
             }
         }
     });
