@@ -283,17 +283,15 @@ function standardDeviation(values){
     var avgSquareDiff = average(squareDiffs);
     console.log(avgSquareDiff);
     var stdDev = Math.sqrt(avgSquareDiff);
-
-    //if (avg > 1000) {
-    //    stdDev + 1;
-    //}
-    //if (avg >= 0 && avg <= 100 ) {
-    //    stdDev + 3;
-    //}
-    //if (avg >= 100  && avg <= 1000){
-    //    stdDev +2;
-    //}
-    console.log(stdDev);
+    console.log("Stander dev before: " + stdDev);
+    if (avg > 1000) {
+        stdDev += 1;
+    } else if (avg > 100){
+        stdDev += 2;
+    } else if (avg >= 0){
+        stdDev += 3;
+    }
+    console.log("Stander dev after: " + stdDev);
     return stdDev;
 }
 
@@ -305,7 +303,5 @@ function average(data){
     var avg = sum / data.length;
     return avg;
 }
-
-
 
 module.exports = router;
