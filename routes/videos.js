@@ -18,8 +18,6 @@ var decay = require('decay'), hotScore = decay.redditHot();
  * resourcePath: /videos
  * description: All about API
  */
-
-
 var Video = mongoose.model('Video', {
 
     title:
@@ -175,8 +173,7 @@ router.get("/", function (req, res, next)
  *          required: true
  *          dataType: number
  */
-router.post("/", function (req, res, next)
-        {
+router.post("/", function (req, res, next) {
         console.log(JSON.stringify(req.body) + "\n\n");
         var video = new Video({
             title: req.body.title,
@@ -201,8 +198,7 @@ router.post("/", function (req, res, next)
         }
 });
 
-router.post("/vote", function (req, res, next)
-{
+router.post("/vote", function (req, res, next) {
     console.log(JSON.stringify(req.body) + "\n\n");
     var video = new Video({
         title: req.body.title,
@@ -225,12 +221,14 @@ router.post("/vote", function (req, res, next)
     }
 });
 
-/*
+/**
  * @swagger
-
- *      summary: Works out the Surge Rating
- *      notes: It gets the number of up and down votes and then uses the timestamp to work out the rating
- *      notes: Uses decay.js to use the reddit algorithm
+ *      summary Works out the Surge Rating and controversial
+ *      notes It gets the number of up and down votes and then uses the timestamp to work out the rating
+ *      notes Uses decay.js to use the reddit algorithm
+ *      notes works out a number for controversial
+ *      notes this is calculated using standard deviation
+ *      notes slight change implemented to make the score more reliable
  */
 setInterval(function () {
     var query = Video.where({});
@@ -238,52 +236,35 @@ setInterval(function () {
         if(!err) {
             videos.forEach(function (v) {
                 var surge_rating = hotScore(v.up_vote, v.down_vote, v.timestamp);
-                // save so that next GET /entry/ gets an updated ordering
                 v.surge_rate = surge_rating;
                 v.save();
                 console.log(v)
-                /*var winvotes;
-                var loosevotes;
-
-                if (v.up_vote> v.down_vote) {
-                    winvotes = v.up_vote;
-                    loosevotes = v.down_vote;
-                }
-                else{
-                    winvotes = v.down_vote;
-                    loosevotes = v.up_vote;
-                }
-                var loosewin_ratio = loosevotes / winvotes;
-                var total_score = v.up_vote + v.down_vote;
-                v.controversial = total_score * loosewin_ratio;*/
                 v.controversial = standardDeviation([v.up_vote, v.down_vote]);
-               // 3777.5996624947265
-                //6331.371951219512
             });
         }
     });
 }, 1000 * 60 * 1);
 
-// run every 5 minutes, say
 
+/*
+ *      summary: works out standard deviation
+ *      notes: returns a value which then gets assigned to the controversial field in the monogodb model
+ */
 function standardDeviation(values){
 
-    console.log(values);
     var avg = average(values);
-    console.log(avg);
 
     var squareDiffs = values.map(function(value){
         var diff = value - avg;
         var sqrDiff = diff * diff;
+
         return sqrDiff;
     });
 
-    console.log(squareDiffs);
-
     var avgSquareDiff = average(squareDiffs);
-    console.log(avgSquareDiff);
+
     var stdDev = Math.sqrt(avgSquareDiff);
-    console.log("Stander dev before: " + stdDev);
+
     if (avg > 1000) {
         stdDev += 1;
     } else if (avg > 100){
