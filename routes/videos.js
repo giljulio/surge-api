@@ -13,6 +13,7 @@ var crypto = require('crypto');
 var base64url = require('base64url');
 var decay = require('decay'), hotScore = decay.redditHot();
 var users = require('./users');
+var util = require('./util')
 
 /**
  * @swagger
@@ -171,13 +172,6 @@ router.get("/", function (req, res, next)
                     }
                 });
             });
-
-            // Need to select what fields to return - do not want to return up_votes_users/down_votes_users arrays
-            /*  title, url, category, up_vote, down_vote, surge_rate, controversial, timestamp,
-                uploader: {
-                    _id: "",
-                    username: ""
-                }*/
         }
     });
 });
@@ -269,7 +263,6 @@ router.post("/vote", function (req, res, next) {
  *      notes this is calculated using standard deviation
  *      notes slight change implemented to make the score more reliable
  */
-
 setInterval(function () {
     var query = Video.where({});
     query.find(function (err, videos) {
@@ -278,52 +271,12 @@ setInterval(function () {
             videos.forEach(function (v) {
                 var surge_rating = hotScore(v.up_vote, v.down_vote, v.timestamp);
                 v.surge_rate = surge_rating;
-                v.uploader = "54de1e8ab3fdf6e00a96745e";
-                v.controversial = standardDeviation([v.up_vote, v.down_vote]);
+                v.controversial = util.calculateControversial([v.up_vote, v.down_vote]);
                 v.save();
             });
             console.log("Finished updating surge and controversial values!");
         }
     });
 }, 1000 * 60 * 1);
-
-
-/*
- *      summary: works out standard deviation
- *      notes: returns a value which then gets assigned to the controversial field in the monogodb model
- */
-function standardDeviation(values){
-
-    var avg = average(values);
-
-    var squareDiffs = values.map(function(value){
-        var diff = value - avg;
-        var sqrDiff = diff * diff;
-
-        return sqrDiff;
-    });
-
-    var avgSquareDiff = average(squareDiffs);
-
-    var stdDev = Math.sqrt(avgSquareDiff);
-
-    if (avg > 1000) {
-        stdDev += 1;
-    } else if (avg > 100){
-        stdDev += 2;
-    } else if (avg >= 0){
-        stdDev += 3;
-    }
-    return stdDev;
-}
-
-function average(data){
-    var sum = data.reduce(function(sum, value){
-        return sum + value;
-    }, 0);
-
-    var avg = sum / data.length;
-    return avg;
-}
 
 module.exports = router;
