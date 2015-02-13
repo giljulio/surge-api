@@ -60,24 +60,6 @@ var Token = mongoose.model('Token', {
 });
 
 
-
-/*var emailStart="test";
-var numberSuffix= 100004;
-var suffix="@test.com";
-var password="testing";
-
-for(var i=0; i<900000; i++) {
-    var newUser = new User ({
-        email:(emailStart+(numberSuffix.toString())+suffix),
-        password:md5(password),
-        token: createToken(),
-        expiration: newTimeStamp()
-    });
-    newUser.save();
-    console.log("Saved "+ emailStart+(numberSuffix.toString())+suffix)
-    numberSuffix=numberSuffix+1;
-}*/
-
 /**
  * Function that checks their authentication token as to whether it's valid or not,
  * not forced so will return a value letting the client they are not authenticated but they can carry on
@@ -371,77 +353,6 @@ router.post("/", function(req, res, next) {
     });
 });
 
-/*
-    Creates a user if it doesn't exist. If it does exist it checks if the
-    details are valid  If it does it successfully it creates an auth token
-
-*/
-/*router.post('/', function (req, res, next) {
-
-
-    async.waterfall([
-
-        //Checks if the auth token is valid
-        function(callback){
-
-            var query = User.where({ email: req.body.email });
-            query.findOne(function (err, user) {
-                if(err) {
-                    callback(err);
-                } else if(user == null){
-                    //Create a new account as the email isnt already registered
-                    callback(null, null);
-                } else if(user.password === md5(req.body.password)){
-                    //Authenticated!
-                    callback(null, {
-                        user_id: user._id,
-                        user_email: user.email,
-                        provider: "basic"
-                    });
-                } else {
-                    callback(new Error("Passwords not matching"));
-                }
-            });
-
-        },
-
-        //Adds user to db if required
-        function(auth, callback){
-
-            if(auth != null){
-                callback(null, auth);
-            } else {
-                var user = new User({
-                    email: req.body.email,
-                    password: md5(req.body.password)
-                });
-                user.save(function (err) {
-                    if (err){
-                        callback(err);
-                    } else {
-                        callback(null, {
-                            user_id: user._id,
-                            user_email: req.body.email,
-                            provider: "basic"
-                        });
-                    }
-                });
-            }
-
-        },
-
-        //Creates JWT token
-        function(auth, callback){
-
-            var token = jwt.encode(auth, "GDpe61gaI39giDLhiEGvwmnx68dXJePauHswwehq");
-
-            callback(null, token);
-        }
-    ], function (err, token) {
-        res.send(err ? err : {"token": token})
-        next();
-    });
-});*/
-
 module.exports = router;
 module.exports.forceAuth = forceAuth;
+module.exports.User = User;
