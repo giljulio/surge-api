@@ -8,6 +8,7 @@ var mongoose = require('mongoose');
 var Boom = require('boom');
 var crypto = require('crypto');
 var base64url = require('base64url');
+var util = require('./util')
 
 var expirationTime = 10512000000; //4 Months in Milliseconds
 
@@ -60,20 +61,6 @@ var Token = mongoose.model('Token', {
 
 
 
-
-function randomStringAsBase64Url(size) {
-    return base64url(crypto.randomBytes(size));
-}
-
-function createToken() {
-    return randomStringAsBase64Url(40);
-}
-
-function newTimeStamp() {
-    return new Date().getTime();
-}
-
-
 /*var emailStart="test";
 var numberSuffix= 100004;
 var suffix="@test.com";
@@ -107,7 +94,7 @@ var checkAuth = exports.checkAuth = function (req, res, next) {
             next();
         } else {
             for(var i = 0; i < tok.tokens.length; i++){
-                if(tok.tokens[i].token == req.headers.authorization && (tok.tokens[i].expiration + expirationTime) > newTimeStamp()) {
+                if(tok.tokens[i].token == req.headers.authorization && (tok.tokens[i].expiration + expirationTime) > util.newTimeStamp()) {
                     req.user = {};
                     req.user.id = tok._id;
                     next();
@@ -207,8 +194,8 @@ router.post("/authenticate", function (req, res, next) {        //If the user su
                 type:"incorrect-credentials"
             }));
         } else {
-            var token = createToken();
-            var timeStamp = newTimeStamp();
+            var token = util.createToken();
+            var timeStamp = util.newTimeStamp();
             res.send({token: token, timestamp: timeStamp});
             var newToken = new Token ({
                 token: token,
@@ -242,7 +229,7 @@ var forceAuth = exports.forceAuth = function (req, res, next) { //Function that 
         } else {
             for(var i = 0; i < tok.tokens.length; i++){
                 if(tok.tokens[i].token == token){
-                    if((tok.tokens[i].expiration + expirationTime) > newTimeStamp()) {
+                    if((tok.tokens[i].expiration + expirationTime) > util.newTimeStamp()) {
                         next();
                     } else {
                         next(Boom.create(403, "The token is out of date!", {
@@ -333,8 +320,8 @@ router.post("/", function(req, res, next) {
        }
        else if (user == null) {
            var token = new Token ({
-               token: createToken(),
-               expiration: newTimeStamp()
+               token: util.createToken(),
+               expiration: util.newTimeStamp()
            })
            var newUser = new User ({
                email:req.body.email,

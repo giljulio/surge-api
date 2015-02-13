@@ -12,6 +12,7 @@ var Boom = require('boom');
 var crypto = require('crypto');
 var base64url = require('base64url');
 var decay = require('decay'), hotScore = decay.redditHot();
+var util = require('./util')
 
 /**
  * @swagger
@@ -239,55 +240,10 @@ setInterval(function () {
                 v.surge_rate = surge_rating;
                 v.save();
                 console.log(v)
-                v.controversial = standardDeviation([v.up_vote, v.down_vote]);
+                v.controversial = util.calculateControversial([v.up_vote, v.down_vote]);
             });
         }
     });
 }, 1000 * 60 * 1);
-
-
-/*
- *      summary: works out standard deviation
- *      notes: returns a value which then gets assigned to the controversial field in the monogodb model
- */
-function standardDeviation(values){
-
-    var avg = average(values);
-
-    var squareDiffs = values.map(function(value){
-        var diff = value - avg;
-        var sqrDiff = diff * diff;
-
-        return sqrDiff;
-    });
-
-    var avgSquareDiff = average(squareDiffs);
-
-    var stdDev = Math.sqrt(avgSquareDiff);
-    if(avg > 10000){
-        stdDev += 0.1;
-    } else if (avg > 5000){
-        stdDev += 0.2;
-    } else if (avg > 1000){
-        stdDev += 0.3;
-    } else if (avg > 500){
-        stdDev += 0.4;
-    } else if (avg > 100){
-        stdDev += 0.5;
-    } else if (avg >= 0){
-        stdDev += 0.6;
-    }
-    console.log("Stander dev after: " + stdDev);
-    return stdDev;
-}
-
-function average(data){
-    var sum = data.reduce(function(sum, value){
-        return sum + value;
-    }, 0);
-
-    var avg = sum / data.length;
-    return avg;
-}
 
 module.exports = router;
