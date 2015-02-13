@@ -458,3 +458,4 @@ router.post("/", function(req, res, next) {
 
 module.exports = router;
 module.exports.forceAuth = forceAuth;
+module.exports.User = User;

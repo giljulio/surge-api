@@ -20,7 +20,6 @@ var users = require('./users');
  * description: All about API
  */
 var Video = mongoose.model('Video', {
-
     title:
     {
         type: String,
@@ -147,14 +146,38 @@ router.get("/", function (req, res, next)
     query.skip(req.query.skip || 0)
         .limit(req.query.limit || 30)
         .sort(sort)
+        .select("_id title url category up_vote down_vote surge_rate uploader controversial timestamp")
         .find(function (err, videos) {
         if(err) {
             next(Boom.create(403, "Video not found for this particular ID " + req.params.url, {
                 type: "video_id-not-found"
             }));
         } else {
+            var response = [];
+            videos.forEach(function(video){
+                video = video.toObject();
+                users.User
+                    .where({_id: video.uploader})
+                    .select("_id username")
+                    .find(function(err, user) {
+                    if (err) {
+                        next(err);
+                    } else {
+                        video.uploader = user;
+                        response.push(video);
+                        if (response.length == videos.length) {
+                            res.send(response);
+                        }
+                    }
+                });
+            });
+
             // Need to select what fields to return - do not want to return up_votes_users/down_votes_users arrays
-            res.send(videos);
+            /*  title, url, category, up_vote, down_vote, surge_rate, controversial, timestamp,
+                uploader: {
+                    _id: "",
+                    username: ""
+                }*/
         }
     });
 });
@@ -188,8 +211,6 @@ router.get("/", function (req, res, next)
  *          dataType: number
  */
 router.post("/", [users.forceAuth, function (req, res, next) {
-        console.log(JSON.stringify(req.body) + "\n\n");
-        console.log("userid: " + req.user.id);
         var video = new Video({
             title: req.body.title,
             url: req.body.url,
@@ -257,7 +278,7 @@ setInterval(function () {
             videos.forEach(function (v) {
                 var surge_rating = hotScore(v.up_vote, v.down_vote, v.timestamp);
                 v.surge_rate = surge_rating;
-                v.uploader = "54bd15dba497a08a771d05fc";
+                v.uploader = "54de1e8ab3fdf6e00a96745e";
                 v.controversial = standardDeviation([v.up_vote, v.down_vote]);
                 v.save();
             });
