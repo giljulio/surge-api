@@ -8,7 +8,7 @@ var mongoose = require('mongoose');
 var Boom = require('boom');
 var crypto = require('crypto');
 var base64url = require('base64url');
-var util = require('./util')
+var util = require('./util');
 
 var expirationTime = 10512000000; //4 Months in Milliseconds
 
@@ -444,3 +444,4 @@ router.post("/", function(req, res, next) {
 });*/
 
 module.exports = router;
+module.exports.forceAuth = forceAuth;

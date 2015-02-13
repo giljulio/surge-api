@@ -13,7 +13,7 @@ var crypto = require('crypto');
 var base64url = require('base64url');
 var decay = require('decay'), hotScore = decay.redditHot();
 var users = require('./users');
-var util = require('./util')
+var util = require('./util');
 
 /**
  * @swagger
