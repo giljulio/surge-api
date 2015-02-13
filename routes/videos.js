@@ -37,6 +37,16 @@ var Video = mongoose.model('Video', {
         type:Number,
         required: true
     },
+    up_votes_users:
+    {
+        type: [ObjectId],
+        required: true
+    },
+    down_votes_users:
+    {
+        type: [ObjectId],
+        required: true
+    },
     surge_rate:
     {
         type:Number
@@ -60,6 +70,10 @@ var Video = mongoose.model('Video', {
     {
         type:Number,
         required:true
+    },
+    uploader: {
+        type: [ObjectId],
+        required: true
     }
 });
 
