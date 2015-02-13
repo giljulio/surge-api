@@ -264,7 +264,6 @@ function standardDeviation(values){
     var avgSquareDiff = average(squareDiffs);
 
     var stdDev = Math.sqrt(avgSquareDiff);
-
     if(avg > 10000){
         stdDev += 0.1;
     } else if (avg > 5000){
