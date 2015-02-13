@@ -21,61 +21,6 @@ var models = require('./models');
  * resourcePath: /videos
  * description: All about API
  */
-//var Video = mongoose.model('Video', {
-//    title:
-//    {
-//        type: String,
-//        trim: true,
-//        index: true,
-//        required: true
-//    },
-//    up_vote:
-//    {
-//        type:Number,
-//        required: true
-//    },
-//    down_vote:
-//    {
-//        type:Number,
-//        required: true
-//    },
-//    up_votes_users:
-//    {
-//        type: [String]
-//    },
-//    down_votes_users:
-//    {
-//        type: [String]
-//    },
-//    surge_rate:
-//    {
-//        type:Number
-//    },
-//    controversial:
-//    {
-//        type:Number
-//    },
-//    url:
-//    {
-//        type: String,
-//        trim: true,
-//        required: true
-//    },
-//    timestamp:
-//    {
-//        type: Date,
-//        default: Date.now
-//    },
-//    category:
-//    {
-//        type:Number,
-//        required:true
-//    },
-//    uploader: {
-//        type: String,
-//        required: true
-//    }
-//});
 
 
 /**

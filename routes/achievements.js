@@ -15,16 +15,3 @@ var base64url = require('base64url');
  * description: All about API
  */
 
-var Achievement = mongoose.model('Achievement', {
-    id: {
-        index: true,
-        type:String
-    },
-    name: {
-        index: true,
-        type:String
-    },
-    description: {
-        type:String
-    }
-});

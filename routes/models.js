@@ -87,3 +87,17 @@ var Token = mongoose.model('Token', {
         type:Number
     }
 });
+
+module.exports.Achievement = mongoose.model('Achievement', {
+    id: {
+        index: true,
+        type:String
+    },
+    name: {
+        index: true,
+        type:String
+    },
+    description: {
+        type:String
+    }
+});
