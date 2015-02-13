@@ -8,6 +8,7 @@ var mongoose = require('mongoose');
 var Boom = require('boom');
 var crypto = require('crypto');
 var base64url = require('base64url');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 var expirationTime = 10512000000; //4 Months in Milliseconds
 
@@ -34,7 +35,10 @@ var User = mongoose.model('User', {
         index: true
     },
     tokens: [Token],
-    achievements: [userAchievement]
+    achievements: [userAchievement],
+    achievementPoints: {
+        type:Number
+    }
 });
 
 var userAchievement = mongoose.model('userAchievement', {
@@ -57,9 +61,6 @@ var Token = mongoose.model('Token', {
         type:Number
     }
 });
-
-
-
 
 function randomStringAsBase64Url(size) {
     return base64url(crypto.randomBytes(size));
@@ -120,24 +121,51 @@ var checkAuth = exports.checkAuth = function (req, res, next) {
     });
 };
 
+router.get("/testquery/:user_id", function (req, res, next) {     // returns a users details based on their ID
+    User.aggregate([
+        { $match: { '_id': ObjectId('54d8a23cbc46f89c0a7118cf') } }
+    ], function(err, user) {
+        res.send(user);
+        console.log(user);
+        // [ foo: 4, bar: 2 baz: 2 ]
+    });
+
+
+
+
+
+
+    /*var query = User.where({_id: req.params.user_id});
+    query.findOne(function (err, user) {
+        if(err) {
+            next(Boom.create(404, "DB Connection Failed", {
+                type: "failed-connection"
+            }));
+        } else {
+            if(user){
+                res.send(user);
+            } else {
+                next(Boom.create(404, "user id not found: " + req.params.user_id, {
+                    type:"user-not-found"
+                }));
+            }
+        }
+    });*/
+});
+
 /**
  * @swagger
  * path: /userID
  * operations:
  *   -  httpMethod: GET
- *      summary: Get user ID's
- *      notes: Returns a list of User ID
- *      nickname: User details
+ *      summary: Returns a users profile information
+ *      notes: user ID is submitted along with optionally their token. If a user ID is submitted alone then basic profile information is returned, if they are authenticated then it returns more information.
+ *      nickname: getProfile
  *      consumes:
- *        - application/json
+ *        - application/x-www-form-urlencoded
  *      parameters:
- *        - name: username
- *          description: Your username
- *          paramType: query
- *          required: true
- *          dataType: string
- *        - name: password
- *          description: Your password
+ *        - name: userID
+ *          description: Your email Address or Username
  *          paramType: query
  *          required: true
  *          dataType: string

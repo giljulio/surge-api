@@ -26,5 +26,8 @@ var Achievement = mongoose.model('Achievement', {
     },
     description: {
         type:String
+    },
+    achievementPoints: {
+        type:Number
     }
 });

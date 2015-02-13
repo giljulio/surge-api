@@ -299,4 +299,30 @@ function average(data){
     return avg;
 }
 
+
+router.post("/videos/:video_id/vote/:up/", function (req, res, next) {
+    var video = new Video({
+        title: req.body.title,
+        url: req.body.url,
+        up_vote: 0,
+        down_vote: 0,
+        surge_rate: req.body.surge_rate,
+        category: req.body.category
+    });
+    if (req.body.title.length < 6) {
+        next(Boom.create(401, "The title needs to be at least six characters.", {
+            type: "invalid-video-title"
+        }));
+    } else {
+        video.save(function (err) {
+            if (err) {
+                next(err);
+            } else {
+                res.send(video);
+            }
+        });
+    }
+});
+
+
 module.exports = router;
