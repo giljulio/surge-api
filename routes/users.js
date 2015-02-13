@@ -224,25 +224,24 @@ router.post("/authenticate", function (req, res, next) {        //If the user su
 
 
 
-var forceAuth = exports.forceAuth = function (req, res, next) { //Function that checks their authentication token as to whether it's valid or not, forced validation so it will only allow the function to run if they are authenticated
+var forceAuth = function (req, res, next) { //Function that checks their authentication token as to whether it's valid or not, forced validation so it will only allow the function to run if they are authenticated
     var token = req.headers.authorization;
-    var userID = req.params.user_id;
-    console.log("Token: "+token+" userID: "+userID);
-    var query = User.where({_id: req.params.user_id, 'tokens.token': token });
-    query.findOne(function (err, tok) {
+    var query = User.where({'tokens.token': token });
+    query.findOne(function (err, user) {
         if(err) {
             next(Boom.create(404, "DB Connection Failed", {
                 type: "failed-connection"
             }));
-        }
-        else if (tok == null) {
+        } else if (user == null) {
             next(Boom.create(403, "Cannot find token.", {
                 type:"token-not-found"
             }));
         } else {
-            for(var i = 0; i < tok.tokens.length; i++){
-                if(tok.tokens[i].token == token){
-                    if((tok.tokens[i].expiration + expirationTime) > newTimeStamp()) {
+            for(var i = 0; i < user.tokens.length; i++){
+                if(user.tokens[i].token == token){
+                    if((user.tokens[i].expiration + expirationTime) > newTimeStamp()) {
+                        req.user = {};
+                        req.user.id = user._id;
                         next();
                     } else {
                         next(Boom.create(403, "The token is out of date!", {
@@ -458,3 +457,4 @@ router.post("/", function(req, res, next) {
 });*/
 
 module.exports = router;
+module.exports.forceAuth = forceAuth;

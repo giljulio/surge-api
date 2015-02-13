@@ -12,6 +12,7 @@ var Boom = require('boom');
 var crypto = require('crypto');
 var base64url = require('base64url');
 var decay = require('decay'), hotScore = decay.redditHot();
+var users = require('./users');
 
 /**
  * @swagger
@@ -39,13 +40,11 @@ var Video = mongoose.model('Video', {
     },
     up_votes_users:
     {
-        type: [ObjectId],
-        required: true
+        type: [String]
     },
     down_votes_users:
     {
-        type: [ObjectId],
-        required: true
+        type: [String]
     },
     surge_rate:
     {
@@ -72,7 +71,7 @@ var Video = mongoose.model('Video', {
         required:true
     },
     uploader: {
-        type: [ObjectId],
+        type: String,
         required: true
     }
 });
@@ -154,6 +153,7 @@ router.get("/", function (req, res, next)
                 type: "video_id-not-found"
             }));
         } else {
+            // Need to select what fields to return - do not want to return up_votes_users/down_votes_users arrays
             res.send(videos);
         }
     });
@@ -187,15 +187,19 @@ router.get("/", function (req, res, next)
  *          required: true
  *          dataType: number
  */
-router.post("/", function (req, res, next) {
+router.post("/", [users.forceAuth, function (req, res, next) {
         console.log(JSON.stringify(req.body) + "\n\n");
+        console.log("userid: " + req.user.id);
         var video = new Video({
             title: req.body.title,
             url: req.body.url,
             up_vote: 0,
             down_vote: 0,
+            up_vote_users: [],
+            down_vote_users: [],
             surge_rate: req.body.surge_rate,
-            category: req.body.category
+            category: req.body.category,
+            uploader: req.user.id
         });
         if (req.body.title.length < 6) {
             next(Boom.create(401, "The title needs to be at least six characters.", {
@@ -210,7 +214,7 @@ router.post("/", function (req, res, next) {
                 }
             });
         }
-});
+}]);
 
 router.post("/vote", function (req, res, next) {
     console.log(JSON.stringify(req.body) + "\n\n");
@@ -244,17 +248,20 @@ router.post("/vote", function (req, res, next) {
  *      notes this is calculated using standard deviation
  *      notes slight change implemented to make the score more reliable
  */
+
 setInterval(function () {
     var query = Video.where({});
     query.find(function (err, videos) {
         if(!err) {
+            console.log("Starting updating surge rate...");
             videos.forEach(function (v) {
                 var surge_rating = hotScore(v.up_vote, v.down_vote, v.timestamp);
                 v.surge_rate = surge_rating;
-                v.save();
-                console.log(v)
+                v.uploader = "54bd15dba497a08a771d05fc";
                 v.controversial = standardDeviation([v.up_vote, v.down_vote]);
+                v.save();
             });
+            console.log("Finished updating surge and controversial values!");
         }
     });
 }, 1000 * 60 * 1);
@@ -286,7 +293,6 @@ function standardDeviation(values){
     } else if (avg >= 0){
         stdDev += 3;
     }
-    console.log("Stander dev after: " + stdDev);
     return stdDev;
 }
 
