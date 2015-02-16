@@ -9,6 +9,7 @@ var Boom = require('boom');
 var crypto = require('crypto');
 var base64url = require('base64url');
 var util = require('./util');
+var models = require('./models');
 
 var expirationTime = 10512000000; //4 Months in Milliseconds
 
@@ -18,54 +19,13 @@ var expirationTime = 10512000000; //4 Months in Milliseconds
  * description: All about API
  */
 
-var User = mongoose.model('User', {
-    email: {
-        type: String,
-        trim: true,
-        lowercase: true,
-        unique: true,
-        index: true
-    },
-    password: String,
-    username: {
-        type: String,
-        trim: true,
-        lowercase: true,
-        unique: true,
-        index: true
-    },
-    tokens: [Token],
-    achievements: [userAchievement]
-});
-
-var userAchievement = mongoose.model('userAchievement', {
-    achievementId: {
-        type:String,
-        index:true
-    },
-    dateAchieved: {
-        type: Date,
-        default: Date.now
-    }
-});
-
-var Token = mongoose.model('Token', {
-    token: {
-        type:String,
-        index:true
-    },
-    expiration: {
-        type:Number
-    }
-});
-
 
 /**
  * Function that checks their authentication token as to whether it's valid or not,
  * not forced so will return a value letting the client they are not authenticated but they can carry on
  */
 var checkAuth = exports.checkAuth = function (req, res, next) {
-    var query = User.where({_id: req.params.user_id, 'tokens.token': req.headers.authorization});
+    var query = models.User.where({_id: req.params.user_id, 'tokens.token': req.headers.authorization});
     query.findOne(function (err, tok) {
         if(err) {
             next(Boom.create(404, "DB Connection Failed", {
@@ -114,7 +74,7 @@ router.get("/:user_id", [checkAuth, function (req, res, next) {     // returns a
         selects +=" email";
     }
     console.log(selects);
-    var query = User.where({_id: req.params.user_id}).select(selects);
+    var query = models.User.where({_id: req.params.user_id}).select(selects);
     query.findOne(function (err, user) {
         if(err) {
             next(Boom.create(404, "DB Connection Failed", {
@@ -160,7 +120,7 @@ router.get("/:user_id", [checkAuth, function (req, res, next) {     // returns a
  *          dataType: string
  */
 router.post("/authenticate", function (req, res, next) {        //If the user submits a correct email and password a token and expiration date will be generated
-   var query = User.where({ $or:[{'email': req.body.userLogin},{'username': (req.body.userLogin.toLowerCase())}]}).where({'password': md5(req.body.password)});
+   var query = models.User.where({ $or:[{'email': req.body.userLogin},{'username': (req.body.userLogin.toLowerCase())}]}).where({'password': md5(req.body.password)});
     query.findOne(function (err, user) {
         if(err) {
             next(Boom.create(404, "DB Connection Failed", {
@@ -190,7 +150,7 @@ router.post("/authenticate", function (req, res, next) {        //If the user su
 
 var forceAuth = function (req, res, next) { //Function that checks their authentication token as to whether it's valid or not, forced validation so it will only allow the function to run if they are authenticated
     var token = req.headers.authorization;
-    var query = User.where({'tokens.token': token });
+    var query = models.User.where({'tokens.token': token });
     query.findOne(function (err, user) {
         if(err) {
             next(Boom.create(404, "DB Connection Failed", {
@@ -286,7 +246,7 @@ router.delete("/:user_id",[forceAuth, function (req, res, next) {          //Del
  */
 
 router.post("/", function(req, res, next) {
-    var query = User.where({ $or:[{'email': req.body.email},{'username': (req.body.username.toLowerCase())}]});
+    var query = models.User.where({ $or:[{'email': req.body.email},{'username': (req.body.username.toLowerCase())}]});
     query.findOne(function (err, user) {
         console.log(user);
        if (err) {
@@ -299,7 +259,7 @@ router.post("/", function(req, res, next) {
                token: util.createToken(),
                expiration: util.newTimeStamp()
            })
-           var newUser = new User ({
+           var newUser = new models.User ({
                email:req.body.email,
                password:md5(req.body.password),
                username:req.body.username,
@@ -350,4 +310,4 @@ router.post("/", function(req, res, next) {
 
 module.exports = router;
 module.exports.forceAuth = forceAuth;
-module.exports.User = User;
+module.exports.User = models.User;

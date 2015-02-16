@@ -14,67 +14,13 @@ var base64url = require('base64url');
 var decay = require('decay'), hotScore = decay.redditHot();
 var users = require('./users');
 var util = require('./util');
+var models = require('./models');
 
 /**
  * @swagger
  * resourcePath: /videos
  * description: All about API
  */
-var Video = mongoose.model('Video', {
-    title:
-    {
-        type: String,
-        trim: true,
-        index: true,
-        required: true
-    },
-    up_vote:
-    {
-        type:Number,
-        required: true
-    },
-    down_vote:
-    {
-        type:Number,
-        required: true
-    },
-    up_votes_users:
-    {
-        type: [String]
-    },
-    down_votes_users:
-    {
-        type: [String]
-    },
-    surge_rate:
-    {
-        type:Number
-    },
-    controversial:
-    {
-        type:Number
-    },
-    url:
-    {
-        type: String,
-        trim: true,
-        required: true
-    },
-    timestamp:
-    {
-        type: Date,
-        default: Date.now
-    },
-    category:
-    {
-        type:Number,
-        required:true
-    },
-    uploader: {
-        type: String,
-        required: true
-    }
-});
 
 
 /**
@@ -143,7 +89,7 @@ router.get("/", function (req, res, next)
         }
     }
 
-    var query = Video.where(filter);
+    var query = models.Video.where(filter);
     query.skip(req.query.skip || 0)
         .limit(req.query.limit || 30)
         .sort(sort)
@@ -157,14 +103,14 @@ router.get("/", function (req, res, next)
             var response = [];
             videos.forEach(function(video){
                 video = video.toObject();
-                users.User
+                models.User
                     .where({_id: video.uploader})
                     .select("_id username")
-                    .find(function(err, user) {
+                    .find(function(err, users) {
                     if (err) {
                         next(err);
                     } else {
-                        video.uploader = user;
+                        video.uploader = users[0];
                         response.push(video);
                         if (response.length == videos.length) {
                             res.send(response);
@@ -205,7 +151,7 @@ router.get("/", function (req, res, next)
  *          dataType: number
  */
 router.post("/", [users.forceAuth, function (req, res, next) {
-        var video = new Video({
+        var video = new models.Video({
             title: req.body.title,
             url: req.body.url,
             up_vote: 0,
@@ -233,7 +179,7 @@ router.post("/", [users.forceAuth, function (req, res, next) {
 
 router.post("/vote", function (req, res, next) {
     console.log(JSON.stringify(req.body) + "\n\n");
-    var video = new Video({
+    var video = new models.Video({
         title: req.body.title,
         url: req.body.url,
         up_vote: 0,
@@ -264,7 +210,7 @@ router.post("/vote", function (req, res, next) {
  *      notes slight change implemented to make the score more reliable
  */
 setInterval(function () {
-    var query = Video.where({});
+    var query = models.Video.where({});
     query.find(function (err, videos) {
         if(!err) {
             console.log("Starting updating surge rate...");
