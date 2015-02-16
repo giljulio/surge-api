@@ -279,6 +279,8 @@ router.post("/:video_id/vote/:vote_type/", [users.forceAuth, function (req, res,
                 else {
                     res.send({
                         response: req.params.vote_type +" vote successful!",
+                        upvotes: video.up_vote,
+                        downVotes: video.down_vote,
                         type: req.params.vote_type +"-vote-success"
                     });
                 }
