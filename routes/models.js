@@ -64,7 +64,10 @@ module.exports.User = mongoose.model('User', {
         index: true
     },
     tokens: [Token],
-    achievements: [userAchievement]
+    achievements: [userAchievement],
+    achievementPoints: {
+        type:Number
+    }
 });
 
 var userAchievement = mongoose.model('userAchievement', {
@@ -99,5 +102,8 @@ module.exports.Achievement = mongoose.model('Achievement', {
     },
     description: {
         type:String
+    },
+    achievementPoints: {
+        type:Number
     }
 });
