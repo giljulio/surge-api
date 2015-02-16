@@ -279,4 +279,65 @@ setInterval(function () {
     });
 }, 1000 * 60 * 1);
 
+/**
+ * @swagger
+ * path: /video_id/vote/vote_type/
+ * operations:
+ *   -  httpMethod: POST
+ *      summary: Up or down vote a video
+ *      notes: Input a valid video ID and whether you are up or down voting the video (the parameters being "up" or "down" respectively).
+ *      nickname: videoVotes
+ *      consumes:
+ *        - application/json
+ *      parameters:
+ *        - name: video_id
+ *          description: ID of the video
+ *          paramType: form
+ *          required: true
+ *          dataType: string
+ *        - name: vote_type
+ *          description: Whether they are up or down voting the video
+ *          paramType: form
+ *          required: true
+ *          dataType: string
+ */
+
+router.post("/:video_id/vote/:vote_type/", [users.forceAuth, function (req, res, next) {
+    console.log(req.user.id);
+    var query = Video.where({'_id': req.params.video_id});
+    query.findOne(function (err, video) {
+        if(video) {
+            console.log(video);
+            query = Video.where({'_id': req.params.video_id}).where({ $or:[{'up_votes_users': req.user.id},{'down_votes_users': req.user.id}]});
+            query.findOne(function (err, voter) {
+                if(voter) {
+                    res.send({response:"User Found!"});
+                } else {
+                    if(req.params.vote_type === "up") {
+                        video.up_vote = video.up_vote+1;
+                        video.up_votes_users.push(req.user.id);
+                    } else {
+                        video.down_vote = video.up_vote+1;
+                        video.down_votes_users.push(req.user.id);
+                    }
+                    res.send(video);
+                    video.save(function (err) {
+                        if (err) {
+                            next(err);
+                        }
+                        else {
+                            res.send({
+                                response: "Vote successful!",
+                                type: "vote-success"
+                            });
+                        }
+                    });
+                }
+            });
+        } else {
+            res.send({"response":"Video Found!"});
+        }
+    });
+}]);
+
 module.exports = router;

@@ -35,7 +35,6 @@ app.use(swagger.init(app, {
 app.use(express.static(path.join(__dirname, 'public')));
 mongoose.connect(process.env.MONGOLAB_URI);
 
-
 var users = require('./routes/users');
 app.use('/users', users);
 

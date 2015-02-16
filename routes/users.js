@@ -94,20 +94,15 @@ var checkAuth = exports.checkAuth = function (req, res, next) {
  * path: /userID
  * operations:
  *   -  httpMethod: GET
- *      summary: Get user ID's
- *      notes: Returns a list of User ID
- *      nickname: User details
+ *      summary: Retrieve Profile
+ *      notes: User ID is submitted for a user and basic information about that user are returned, if the user submits an authorised token, they will retrieve more 'privileged' information.
+ *      nickname: UserDetails
  *      consumes:
- *        - application/json
+ *        - application/x-www-form-urlencoded
  *      parameters:
- *        - name: username
- *          description: Your username
- *          paramType: query
- *          required: true
- *          dataType: string
- *        - name: password
- *          description: Your password
- *          paramType: query
+ *        - name: user_id
+ *          description: The users _id in the database
+ *          paramType: body
  *          required: true
  *          dataType: string
  */
