@@ -249,39 +249,43 @@ setInterval(function () {
  */
 
 router.post("/:video_id/vote/:vote_type/", [users.forceAuth, function (req, res, next) {
-    console.log(req.user.id);
-    var query = Video.where({'_id': req.params.video_id});
+    var query = models.Video.where({'_id': req.params.video_id});
     query.findOne(function (err, video) {
         if(video) {
-            console.log(video);
-            query = Video.where({'_id': req.params.video_id}).where({ $or:[{'up_votes_users': req.user.id},{'down_votes_users': req.user.id}]});
-            query.findOne(function (err, voter) {
-                if(voter) {
-                    res.send({response:"User Found!"});
-                } else {
-                    if(req.params.vote_type === "up") {
-                        video.up_vote = video.up_vote+1;
-                        video.up_votes_users.push(req.user.id);
-                    } else {
-                        video.down_vote = video.up_vote+1;
-                        video.down_votes_users.push(req.user.id);
-                    }
+            //query = models.Video.where({'_id': req.params.video_id}).where({ $or:[{'up_votes_users': req.user.id},{'down_votes_users': req.user.id}]});
+            if (video.down_votes_users.length != video.down_votes_users.pull(req.user.id).length) {
+                video.down_votes_users.pull(req.user.id);
+                video.down_vote = video.down_vote -1;
+                console.log("they've down voted");
+                video.save();
+            }
+            if (video.up_votes_users.length != video.up_votes_users.pull(req.user.id).length) {
+                video.up_votes_users.pull(req.user.id);
+                video.up_vote = video.up_vote -1;
+                console.log("they've up voted");
+                video.save();
+            }
+            if (req.params.vote_type === "up") {
+                video.up_vote = video.down_vote + 1;
+                video.up_votes_users.push(req.user.id);
+            } else {
+                video.down_vote = video.down_vote + 1;
+                video.down_votes_users.push(req.user.id);
+            }
+            video.save(function (err) {
+                if (err) {
+                    next(err);
+                }
+                else {
                     res.send(video);
-                    video.save(function (err) {
-                        if (err) {
-                            next(err);
-                        }
-                        else {
-                            res.send({
-                                response: "Vote successful!",
-                                type: "vote-success"
-                            });
-                        }
-                    });
+                    /*res.send({
+                        response: "Vote successful!",
+                        type: "vote-success"
+                    });*/
                 }
             });
         } else {
-            res.send({"response":"Video Found!"});
+            res.send({"response":"Video Not Found!"});
         }
     });
 }]);
