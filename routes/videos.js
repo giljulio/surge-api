@@ -277,11 +277,10 @@ router.post("/:video_id/vote/:vote_type/", [users.forceAuth, function (req, res,
                     next(err);
                 }
                 else {
-                    res.send(video);
-                    /*res.send({
-                        response: "Vote successful!",
-                        type: "vote-success"
-                    });*/
+                    res.send({
+                        response: req.params.vote_type +" vote successful!",
+                        type: req.params.vote_type +"-vote-success"
+                    });
                 }
             });
         } else {
