@@ -105,7 +105,7 @@ router.get("/", function (req, res, next)
                 video = video.toObject();
                 models.User
                     .where({_id: video.uploader})
-                    .select("_id username")
+                    .select("_id username surge_points")
                     .find(function(err, users) {
                     if (err) {
                         next(err);

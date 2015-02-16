@@ -65,7 +65,7 @@ module.exports.User = mongoose.model('User', {
     },
     tokens: [Token],
     achievements: [userAchievement],
-    achievementPoints: {
+    surge_points: {
         type:Number
     }
 });
@@ -103,7 +103,7 @@ module.exports.Achievement = mongoose.model('Achievement', {
     description: {
         type:String
     },
-    achievementPoints: {
+    surge_points: {
         type:Number
     }
 });
