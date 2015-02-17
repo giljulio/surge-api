@@ -29,7 +29,7 @@ app.use(swagger.init(app, {
     swaggerURL: '/api-playground',
     swaggerJSON: '/api-docs.json',
     swaggerUI: './public/swagger/',
-    apis: ['./routes/users.js','./routes/videos.js']
+    apis: ['./routes/users.js','./routes/videos.js','./routes/achievements.js']
 }));
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -41,10 +41,8 @@ app.use('/users', users);
 var videos = require('./routes/videos');
 app.use('/videos', videos);
 
-setTimeout(function(){
-    //reddit hotness calculation here
-}, 60000); //60000 = a minute in MS
-
+var achievements = require('./routes/achievements');
+app.use('/achievements', achievements);
 
 // catch 404 and forward to error handler
 /*

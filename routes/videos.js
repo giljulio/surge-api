@@ -252,44 +252,58 @@ router.post("/:video_id/vote/:vote_type/", [users.forceAuth, function (req, res,
     var query = models.Video.where({'_id': req.params.video_id});
     query.findOne(function (err, video) {
         if(video) {
-            //query = models.Video.where({'_id': req.params.video_id}).where({ $or:[{'up_votes_users': req.user.id},{'down_votes_users': req.user.id}]});
-            if (video.down_votes_users.length != video.down_votes_users.pull(req.user.id).length) {
-                video.down_votes_users.pull(req.user.id);
-                video.down_vote = video.down_vote -1;
-                console.log("they've down voted");
-                video.save();
-            }
-            if (video.up_votes_users.length != video.up_votes_users.pull(req.user.id).length) {
-                video.up_votes_users.pull(req.user.id);
-                video.up_vote = video.up_vote -1;
-                console.log("they've up voted");
-                video.save();
-            }
-            if (req.params.vote_type === "up") {
-                video.up_vote = video.down_vote + 1;
-                video.up_votes_users.push(req.user.id);
-            } else {
-                video.down_vote = video.down_vote + 1;
-                video.down_votes_users.push(req.user.id);
-            }
-            video.save(function (err) {
-                if (err) {
-                    next(err);
-                }
-                else {
-                    res.send({
-                        message: req.params.vote_type +" vote successful!",
-                        upvotes: video.up_vote,
-                        downVotes: video.down_vote,
-                        type: req.params.vote_type +"-vote-success"
+            var uploaderQuery = models.User.where({'_id': video.uploader});
+            uploaderQuery.findOne(function (err, uploader) {
+                if (uploader) {
+                    console.log("uploader found");
+                    console.log(uploader);
+
+                    if (video.down_votes_users.length != video.down_votes_users.pull(req.user.id).length) {
+                        video.down_vote = video.down_vote - 1;
+                        uploader.surge_points = uploader.surge_points +5;
+                        uploader.save();
+                        video.save();
+                    }
+                    if (video.up_votes_users.length != video.up_votes_users.pull(req.user.id).length) {
+                        video.up_vote = video.up_vote - 1;
+                        uploader.surge_points = uploader.surge_points -10;
+                        uploader.save();
+                        video.save();
+                    }
+                    if (req.params.vote_type === "up") {
+                        video.up_vote = video.down_vote + 1;
+                        uploader.surge_points = uploader.surge_points +10;
+                        video.up_votes_users.push(req.user.id);
+                    } else {
+                        video.down_vote = video.down_vote + 1;
+                        uploader.surge_points = uploader.surge_points -5;
+                        video.down_votes_users.push(req.user.id);
+                    }
+                    uploader.save();
+                    video.save(function (err) {
+                        if (err) {
+                            next(err);
+                        }
+                        else {
+                            res.send({
+                                message: req.params.vote_type + " vote successful!",
+                                upvotes: video.up_vote,
+                                downVotes: video.down_vote,
+                                type: req.params.vote_type + "-vote-success"
+                            });
+                        }
                     });
+                } else {
+                    next(Boom.create(404, "uploader not found", {
+                        type:"uploader-not-found"
+                    }));
                 }
             });
-        } else {
-            next(Boom.create(404, "video not found", {
-                type:"video-not-found"
-            }));
-        }
+            } else {
+                next(Boom.create(404, "video not found", {
+                    type:"video-not-found"
+                }));
+            }
     });
 }]);
 
