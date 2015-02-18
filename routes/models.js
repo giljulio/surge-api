@@ -81,7 +81,7 @@ var userAchievement = mongoose.model('userAchievement', {
     }
 });
 
-var Token = mongoose.model('Token', {
+var Token = module.exports.Token = mongoose.model('Token', {
     token: {
         type:String,
         index:true

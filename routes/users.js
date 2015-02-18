@@ -134,7 +134,7 @@ router.post("/authenticate", function (req, res, next) {        //If the user su
             var token = util.createToken();
             var timeStamp = util.newTimeStamp();
             res.send({token: token, timestamp: timeStamp});
-            var newToken = new Token ({
+            var newToken = new models.Token ({
                 token: token,
                 expiration: timeStamp
             });
@@ -255,7 +255,7 @@ router.post("/", function(req, res, next) {
            }));
        }
        else if (user == null) {
-           var token = new Token ({
+           var token = new models.Token ({
                token: util.createToken(),
                expiration: util.newTimeStamp()
            })
@@ -311,3 +311,4 @@ router.post("/", function(req, res, next) {
 module.exports = router;
 module.exports.forceAuth = forceAuth;
 module.exports.User = models.User;
+module.exports.Token = models.Token;
