@@ -255,9 +255,6 @@ router.post("/:video_id/vote/:vote_type/", [users.forceAuth, function (req, res,
             var uploaderQuery = models.User.where({'_id': video.uploader});
             uploaderQuery.findOne(function (err, uploader) {
                 if (uploader) {
-                    console.log("uploader found");
-                    console.log(uploader);
-
                     if (video.down_votes_users.length != video.down_votes_users.pull(req.user.id).length) {
                         video.down_vote = video.down_vote - 1;
                         uploader.surge_points = uploader.surge_points +5;
@@ -287,7 +284,7 @@ router.post("/:video_id/vote/:vote_type/", [users.forceAuth, function (req, res,
                         else {
                             res.send({
                                 message: req.params.vote_type + " vote successful!",
-                                upvotes: video.up_vote,
+                                upVotes: video.up_vote,
                                 downVotes: video.down_vote,
                                 type: req.params.vote_type + "-vote-success"
                             });
