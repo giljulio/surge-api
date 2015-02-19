@@ -279,6 +279,16 @@ router.post("/", function(req, res, next) {
                    type: "invalid-email"
                }));
            }
+           else if (req.body.username.length <= 2) {
+               next(Boom.create(401, "The username entered: " + req.body.username + " must be more than 2 characters.", {
+                   type: "invalid-username"
+               }));
+           }
+           else if (req.body.username.indexOf(' ') >= 0) {
+               next(Boom.create(401, "The username entered: " + req.body.username + " cannot contain spaces.", {
+                   type: "invalid-username"
+               }));
+           }
            else {
                newUser.save(function (err) {
                    if (err) {
