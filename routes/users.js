@@ -139,7 +139,7 @@ router.post("/authenticate", function (req, res, next) {        //If the user su
             } else {
                 var token = util.createToken();
                 var time_stamp = util.newTimeStamp();
-                res.send({token: token, timestamp: time_stamp});
+                res.send({token: token, timestamp: time_stamp, username: user.username, email: user.email, id: user.user_id});
                 var newToken = new models.Token({
                     token: token,
                     expiration: timeStamp
