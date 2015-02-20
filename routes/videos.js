@@ -227,7 +227,7 @@ setInterval(function () {
 
 /**
  * @swagger
- * path: /video_id/vote/vote_type/
+ * path: /{video_id}/vote/{vote_type}/
  * operations:
  *   -  httpMethod: POST
  *      summary: Up or down vote a video

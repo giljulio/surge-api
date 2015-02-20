@@ -12,7 +12,7 @@ var util = require('./util');
 var users = require('./users');
 var models = require('./models');
 
-//est
+//test
 /**
  * @swagger
  * resourcePath: /achievements

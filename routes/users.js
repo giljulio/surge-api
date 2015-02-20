@@ -51,7 +51,7 @@ var checkAuth = exports.checkAuth = function (req, res, next) {
 
 /**
  * @swagger
- * path: /userID
+ * path: /{userID}
  * operations:
  *   -  httpMethod: GET
  *      summary: Retrieve Profile
@@ -108,7 +108,7 @@ router.get("/:user_id", [checkAuth, function (req, res, next) {     // returns a
  *      consumes:
  *        - application/x-www-form-urlencoded
  *      parameters:
- *        - name: userLogin
+ *        - name: user_login
  *          description: Your email Address or Username
  *          paramType: body
  *          required: true
@@ -120,28 +120,34 @@ router.get("/:user_id", [checkAuth, function (req, res, next) {     // returns a
  *          dataType: string
  */
 router.post("/authenticate", function (req, res, next) {        //If the user submits a correct email and password a token and expiration date will be generated
-   var query = models.User.where({ $or:[{'email': req.body.userLogin},{'username': (req.body.userLogin.toLowerCase())}]}).where({'password': md5(req.body.password)});
-    query.findOne(function (err, user) {
-        if(err) {
-            next(Boom.create(404, "DB Connection Failed", {
-                type: "failed-connection"
-            }));
-        } else if (user == null) {
-            next(Boom.create(401, "invalid username or password for " + req.body.email, {
-                type:"incorrect-credentials"
-            }));
-        } else {
-            var token = util.createToken();
-            var timeStamp = util.newTimeStamp();
-            res.send({token: token, timestamp: timeStamp});
-            var newToken = new models.Token ({
-                token: token,
-                expiration: timeStamp
-            });
-            user.tokens.push(newToken);
-            user.save();
-        }
-    });
+    if(req.body.user_login && req.body.password) {
+        var query = models.User.where({ $or:[{'email': req.body.user_login},{'username': (req.body.user_login.toLowerCase())}]}).where({'password': md5(req.body.password)});
+        query.findOne(function (err, user) {
+            if (err) {
+                next(Boom.create(404, "DB Connection Failed", {
+                    type: "failed-connection"
+                }));
+            } else if (user == null) {
+                next(Boom.create(401, "invalid username or password for " + req.body.email, {
+                    type: "incorrect-credentials"
+                }));
+            } else {
+                var token = util.createToken();
+                var timeStamp = util.newTimeStamp();
+                res.send({token: token, timestamp: timeStamp});
+                var newToken = new models.Token({
+                    token: token,
+                    expiration: timeStamp
+                });
+                user.tokens.push(newToken);
+                user.save();
+            }
+        });
+    } else {
+        next(Boom.create(400, "Incorrect parameters submitted", {
+            type: "incorrect-parameters"
+        }));
+    }
 });
 
 
@@ -189,7 +195,7 @@ router.get("/:user_id/favs", [forceAuth, function(req, res, next){      //Exampl
 
 /**
  * @swagger
- * path: /user_id
+ * path: /{user_id}
  * operations:
  *   -  httpMethod: DELETE
  *      summary: Removes a user account and all of their tokens
