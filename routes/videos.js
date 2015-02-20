@@ -1,6 +1,3 @@
-/*
- * Created by qasimshabir on 23/01/15.
- */
 var express = require('express');
 var router = express.Router();
 var async = require("async");
@@ -37,22 +34,18 @@ var models = require('./models');
  *        - name: category
  *          description: video category
  *          paramType: query
- *          required: true
  *          dataType: number
  *        - name: sort
  *          description: video sorting
  *          paramType: query
- *          required: true
  *          dataType: string
  *        - name: skip
  *          description: offset for videos returned
  *          paramType: query
- *          required: true
  *          dataType: number
  *        - name: limit
  *          description: limits how many videos are returned
  *          paramType: query
- *          required: true
  *          dataType: number
  */
 
