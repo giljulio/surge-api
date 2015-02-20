@@ -313,10 +313,7 @@ router.post("/", function(req, res, next) {
                            next(err);
                        }
                        else {
-                           res.send({
-                               token: token.token,
-                               timestamp:token.timestamp
-                           });
+                           res.send({token: token.token, timestamp: token.expiration, user:{ username: user.username, email: user.email, user_id: user.user_id}})
                        }
                    });
                }
