@@ -28,7 +28,7 @@ var checkAuth = exports.checkAuth = function (req, res, next) {
     var query = models.User.where({_id: req.params.user_id, 'tokens.token': req.headers.authorization});
     query.findOne(function (err, tok) {
         if(err) {
-            next(Boom.create(404, "DB Connection Failed", {
+            next(Boom.create(500, "DB Connection Failed", {
                 type: "failed-connection"
             }));
         } else if (tok == null) {
@@ -76,7 +76,7 @@ router.get("/:user_id", [checkAuth, function (req, res, next) {     // returns a
         var query = models.User.where({_id: req.params.user_id}).select(selects);
         query.findOne(function (err, user) {
             if (err) {
-                next(Boom.create(404, "DB Connection Failed", {
+                next(Boom.create(500, "DB Connection Failed", {
                     type: "failed-connection"
                 }));
             } else {
@@ -129,7 +129,7 @@ router.post("/authenticate", function (req, res, next) {        //If the user su
         var query = models.User.where({ $or:[{'email': req.body.user_login},{'username': (req.body.user_login.toLowerCase())}]}).where({'password': md5(req.body.password)});
         query.findOne(function (err, user) {
             if (err) {
-                next(Boom.create(404, "DB Connection Failed", {
+                next(Boom.create(500, "DB Connection Failed", {
                     type: "failed-connection"
                 }));
             } else if (user == null) {
@@ -138,8 +138,8 @@ router.post("/authenticate", function (req, res, next) {        //If the user su
                 }));
             } else {
                 var token = util.createToken();
-                var timeStamp = util.newTimeStamp();
-                res.send({token: token, timestamp: timeStamp});
+                var time_stamp = util.newTimeStamp();
+                res.send({token: token, timestamp: time_stamp});
                 var newToken = new models.Token({
                     token: token,
                     expiration: timeStamp
@@ -164,7 +164,7 @@ var forceAuth = function (req, res, next) { //Function that checks their authent
     var query = models.User.where({'tokens.token': token });
     query.findOne(function (err, user) {
         if(err) {
-            next(Boom.create(404, "DB Connection Failed", {
+            next(Boom.create(500, "DB Connection Failed", {
                 type: "failed-connection"
             }));
         } else if (user == null) {
@@ -268,7 +268,7 @@ router.post("/", function(req, res, next) {
         query.findOne(function (err, user) {
             console.log(user);
            if (err) {
-               next(Boom.create(404, "DB Connection Failed", {
+               next(Boom.create(500, "DB Connection Failed", {
                    type: "failed-connection"
                }));
            }
@@ -314,10 +314,8 @@ router.post("/", function(req, res, next) {
                        }
                        else {
                            res.send({
-                               email: req.body.email,
-                               password: md5(req.body.password),
-                               username:req.body.username,
-                               tokens: token
+                               token: token.token,
+                               timestamp:token.timestamp
                            });
                        }
                    });
