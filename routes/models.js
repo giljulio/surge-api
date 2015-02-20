@@ -44,6 +44,9 @@ module.exports.Video = mongoose.model('Video', {
     uploader: {
         type: String,
         required: true
+    },
+    featured: {
+        type: Boolean
     }
 });
 
@@ -66,8 +69,9 @@ module.exports.User = mongoose.model('User', {
     tokens: [Token],
     achievements: [userAchievement],
     surge_points: {
-        type:Number
-    }
+        type: Number
+    },
+    favourites: [String]
 });
 
 var userAchievement = mongoose.model('userAchievement', {

@@ -56,8 +56,7 @@ var models = require('./models');
  *          dataType: number
  */
 
-router.get("/", function (req, res, next)
-{
+router.get("/", function (req, res, next) {
     var filter = {};
     if(req.query.category){
         filter = {
@@ -71,21 +70,25 @@ router.get("/", function (req, res, next)
             sort = {
                 surge_rate: -1
             };
-        }
-        else if(req.query.sort == "newest"){
+        } else if(req.query.sort == "newest"){
             sort = {
                 timestamp: -1
             };
-        }
-        else if(req.query.sort == "top"){
+        } else if(req.query.sort == "top"){
             sort = {
                 top: -1
             };
-        }
-        else if(req.query.sort == "controversial"){
+        } else if(req.query.sort == "controversial"){
             sort = {
-                controversial: +1
-            }
+                controversial: 1
+            };
+        } else if(req.query.sort == "featured"){
+            sort = {
+                timestamp: -1
+            };
+            filter = {
+                featured: true
+            };
         }
     }
 
@@ -93,7 +96,7 @@ router.get("/", function (req, res, next)
     query.skip(req.query.skip || 0)
         .limit(req.query.limit || 30)
         .sort(sort)
-        .select("_id title url category up_vote down_vote surge_rate uploader controversial timestamp")
+        .select("_id title url category up_vote down_vote surge_rate uploader featured controversial timestamp")
         .find(function (err, videos) {
         if(err) {
             next(Boom.create(403, "Video not found for this particular ID " + req.params.url, {
