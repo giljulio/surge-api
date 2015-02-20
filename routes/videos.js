@@ -151,6 +151,7 @@ router.get("/", function (req, res, next)
  *          dataType: number
  */
 router.post("/", [users.forceAuth, function (req, res, next) {
+    if(req.body.title && req.body.url && req.body.category) {
         var video = new models.Video({
             title: req.body.title,
             url: req.body.url,
@@ -158,7 +159,7 @@ router.post("/", [users.forceAuth, function (req, res, next) {
             down_vote: 0,
             up_vote_users: [],
             down_vote_users: [],
-            surge_rate: req.body.surge_rate,
+            surge_rate: 0,
             category: req.body.category,
             uploader: req.user.id
         });
@@ -175,30 +176,12 @@ router.post("/", [users.forceAuth, function (req, res, next) {
                 }
             });
         }
-}]);
-
-router.post("/vote", function (req, res, next) {
-    console.log(JSON.stringify(req.body) + "\n\n");
-    var video = new models.Video({
-        title: req.body.title,
-        url: req.body.url,
-        up_vote: 0,
-        down_vote: 0,
-        surge_rate: req.body.surge_rate,
-        category: req.body.category
-    });
-    if (req.body.title.length < 6) {
-        next(Boom.unauthorized("The title needs to be at least six characters."));
     } else {
-        video.save(function (err) {
-            if (err) {
-                next(err);
-            } else {
-                res.send(video);
-            }
-        });
+        next(Boom.create(400, "Incorrect parameters submitted", {
+            type: "incorrect-parameters"
+        }));
     }
-});
+}]);
 
 /**
  * @swagger
@@ -209,6 +192,8 @@ router.post("/vote", function (req, res, next) {
  *      notes this is calculated using standard deviation
  *      notes slight change implemented to make the score more reliable
  */
+
+
 setInterval(function () {
     var query = models.Video.where({});
     query.find(function (err, videos) {
@@ -249,59 +234,65 @@ setInterval(function () {
  */
 
 router.post("/:video_id/vote/:vote_type/", [users.forceAuth, function (req, res, next) {
-    var query = models.Video.where({'_id': req.params.video_id});
-    query.findOne(function (err, video) {
-        if(video) {
-            var uploaderQuery = models.User.where({'_id': video.uploader});
-            uploaderQuery.findOne(function (err, uploader) {
-                if (uploader) {
-                    if (video.down_votes_users.length != video.down_votes_users.pull(req.user.id).length) {
-                        video.down_vote = video.down_vote - 1;
-                        uploader.surge_points = uploader.surge_points +5;
+    if(req.params.video_id && ((req.params.vote_type === "up")||(req.params.vote_type === "down"))) {
+        var query = models.Video.where({'_id': req.params.video_id});
+        query.findOne(function (err, video) {
+            if(video) {
+                var uploaderQuery = models.User.where({'_id': video.uploader});
+                uploaderQuery.findOne(function (err, uploader) {
+                    if (uploader) {
+                        if (video.down_votes_users.length != video.down_votes_users.pull(req.user.id).length) {
+                            video.down_vote = video.down_vote - 1;
+                            uploader.surge_points = uploader.surge_points +5;
+                            uploader.save();
+                            video.save();
+                        }
+                        if (video.up_votes_users.length != video.up_votes_users.pull(req.user.id).length) {
+                            video.up_vote = video.up_vote - 1;
+                            uploader.surge_points = uploader.surge_points -10;
+                            uploader.save();
+                            video.save();
+                        }
+                        if (req.params.vote_type === "up") {
+                            video.up_vote = video.down_vote + 1;
+                            uploader.surge_points = uploader.surge_points +10;
+                            video.up_votes_users.push(req.user.id);
+                        } else {
+                            video.down_vote = video.down_vote + 1;
+                            uploader.surge_points = uploader.surge_points -5;
+                            video.down_votes_users.push(req.user.id);
+                        }
                         uploader.save();
-                        video.save();
-                    }
-                    if (video.up_votes_users.length != video.up_votes_users.pull(req.user.id).length) {
-                        video.up_vote = video.up_vote - 1;
-                        uploader.surge_points = uploader.surge_points -10;
-                        uploader.save();
-                        video.save();
-                    }
-                    if (req.params.vote_type === "up") {
-                        video.up_vote = video.down_vote + 1;
-                        uploader.surge_points = uploader.surge_points +10;
-                        video.up_votes_users.push(req.user.id);
+                        video.save(function (err) {
+                            if (err) {
+                                next(err);
+                            }
+                            else {
+                                res.send({
+                                    message: req.params.vote_type + " vote successful!",
+                                    upVotes: video.up_vote,
+                                    downVotes: video.down_vote,
+                                    type: req.params.vote_type + "-vote-success"
+                                });
+                            }
+                        });
                     } else {
-                        video.down_vote = video.down_vote + 1;
-                        uploader.surge_points = uploader.surge_points -5;
-                        video.down_votes_users.push(req.user.id);
+                        next(Boom.create(404, "uploader not found", {
+                            type:"uploader-not-found"
+                        }));
                     }
-                    uploader.save();
-                    video.save(function (err) {
-                        if (err) {
-                            next(err);
-                        }
-                        else {
-                            res.send({
-                                message: req.params.vote_type + " vote successful!",
-                                upVotes: video.up_vote,
-                                downVotes: video.down_vote,
-                                type: req.params.vote_type + "-vote-success"
-                            });
-                        }
-                    });
+                });
                 } else {
-                    next(Boom.create(404, "uploader not found", {
-                        type:"uploader-not-found"
+                    next(Boom.create(404, "video not found", {
+                        type:"video-not-found"
                     }));
                 }
-            });
-            } else {
-                next(Boom.create(404, "video not found", {
-                    type:"video-not-found"
-                }));
-            }
-    });
+        });
+    } else {
+        next(Boom.create(400, "Incorrect parameters submitted", {
+            type: "incorrect-parameters"
+        }));
+    }
 }]);
 
 module.exports = router;

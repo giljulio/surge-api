@@ -51,7 +51,7 @@ var checkAuth = exports.checkAuth = function (req, res, next) {
 
 /**
  * @swagger
- * path: /{userID}
+ * path: /{user_id}
  * operations:
  *   -  httpMethod: GET
  *      summary: Retrieve Profile
@@ -68,33 +68,38 @@ var checkAuth = exports.checkAuth = function (req, res, next) {
  */
 
 router.get("/:user_id", [checkAuth, function (req, res, next) {     // returns a users details based on their ID
-    console.log("the value of checkauth is: " );
-    var selects = "_id username";
-    if(req.user && req.params.user_id == req.user.id){
-        selects +=" email";
-    }
-    console.log(selects);
-    var query = models.User.where({_id: req.params.user_id}).select(selects);
-    query.findOne(function (err, user) {
-        if(err) {
-            next(Boom.create(404, "DB Connection Failed", {
-                type: "failed-connection"
-            }));
-        } else {
-            if(user){
-                var userRes = {
-                    id:user._id, username:user.username};
-                if(user.email){
-                    userRes.email = user.email;
-                }
-                res.send(userRes);
-            } else {
-                next(Boom.create(404, "user id not found: " + req.params.user_id, {
-                    type:"user-not-found"
-                }));
-            }
+    if(req.params.user_id) {
+        var selects = "_id username";
+        if (req.user && req.params.user_id == req.user.id) {
+            selects += " email";
         }
-    });
+        var query = models.User.where({_id: req.params.user_id}).select(selects);
+        query.findOne(function (err, user) {
+            if (err) {
+                next(Boom.create(404, "DB Connection Failed", {
+                    type: "failed-connection"
+                }));
+            } else {
+                if (user) {
+                    var userRes = {
+                        id: user._id, username: user.username
+                    };
+                    if (user.email) {
+                        userRes.email = user.email;
+                    }
+                    res.send(userRes);
+                } else {
+                    next(Boom.create(404, "user id not found: " + req.params.user_id, {
+                        type: "user-not-found"
+                    }));
+                }
+            }
+        });
+    } else {
+        next(Boom.create(400, "Incorrect parameters submitted", {
+            type: "incorrect-parameters"
+        }));
+    }
 }]);
 
 /**
@@ -211,16 +216,22 @@ router.get("/:user_id/favs", [forceAuth, function(req, res, next){      //Exampl
  *          dataType: string
  */
 router.delete("/:user_id",[forceAuth, function (req, res, next) {          //Deletes a user by ID
-    User.remove({ _id: req.params.user_id }, function(err) {
-        if (!err) {
-            res.send({message: "User with ID " + req.params.user_id + " has been deleted."});
-        }
-        else {
-            next(Boom.create(404, "user id not found: " + req.params.user_id, {
-                type:"user-not-found"
-            }));
-        }
-    });
+    if(req.params.user_id) {
+        User.remove({ _id: req.params.user_id }, function(err) {
+            if (!err) {
+                res.send({message: "User with ID " + req.params.user_id + " has been deleted."});
+            }
+            else {
+                next(Boom.create(404, "user id not found: " + req.params.user_id, {
+                    type:"user-not-found"
+                }));
+            }
+        });
+    } else {
+        next(Boom.create(400, "Incorrect parameters submitted", {
+            type: "incorrect-parameters"
+        }));
+    }
 }]);
 
 /**
@@ -252,76 +263,82 @@ router.delete("/:user_id",[forceAuth, function (req, res, next) {          //Del
  */
 
 router.post("/", function(req, res, next) {
-    var query = models.User.where({ $or:[{'email': req.body.email},{'username': (req.body.username.toLowerCase())}]});
-    query.findOne(function (err, user) {
-        console.log(user);
-       if (err) {
-           next(Boom.create(404, "DB Connection Failed", {
-               type: "failed-connection"
-           }));
-       }
-       else if (user == null) {
-           var token = new models.Token ({
-               token: util.createToken(),
-               expiration: util.newTimeStamp()
-           })
-           var newUser = new models.User ({
-               email:req.body.email,
-               password:md5(req.body.password),
-               username:req.body.username,
-               tokens: token
-           });
-           var atSymbol = req.body.email.indexOf("@");
-           var dotSymbol = req.body.email.lastIndexOf(".");
-
-           if (req.body.password.length < 8) {
-               next(Boom.create(401, "The password entered needs to be more than 8 characters.", {
-                   type: "invalid-password"
+    if(req.body.username && req.body.email && req.body.password) {
+        var query = models.User.where({ $or:[{'email': req.body.email},{'username': (req.body.username.toLowerCase())}]});
+        query.findOne(function (err, user) {
+            console.log(user);
+           if (err) {
+               next(Boom.create(404, "DB Connection Failed", {
+                   type: "failed-connection"
                }));
            }
-           // Check for @ symbol in email address
-           else if (atSymbol < 1 || dotSymbol < atSymbol + 2 || dotSymbol + 1 >= req.body.email.length) {
-               next(Boom.create(401, "The following email address: " + req.body.email + " is invalid.", {
-                   type: "invalid-email"
-               }));
-           }
-           else if (req.body.username.length <= 2) {
-               next(Boom.create(401, "The username entered: " + req.body.username + " must be more than 2 characters.", {
-                   type: "invalid-username"
-               }));
-           }
-           else if (req.body.username.indexOf(' ') >= 0) {
-               next(Boom.create(401, "The username entered: " + req.body.username + " cannot contain spaces.", {
-                   type: "invalid-username"
-               }));
-           }
-           else {
-               newUser.save(function (err) {
-                   if (err) {
-                       next(err);
-                   }
-                   else {
-                       res.send({
-                           email: req.body.email,
-                           password: md5(req.body.password),
-                           username:req.body.username,
-                           tokens: token
-                       });
-                   }
+           else if (user == null) {
+               var token = new models.Token ({
+                   token: util.createToken(),
+                   expiration: util.newTimeStamp()
+               })
+               var newUser = new models.User ({
+                   email:req.body.email,
+                   password:md5(req.body.password),
+                   username:req.body.username,
+                   tokens: token
                });
+               var atSymbol = req.body.email.indexOf("@");
+               var dotSymbol = req.body.email.lastIndexOf(".");
+
+               if (req.body.password.length < 8) {
+                   next(Boom.create(401, "The password entered needs to be more than 8 characters.", {
+                       type: "invalid-password"
+                   }));
+               }
+               // Check for @ symbol in email address
+               else if (atSymbol < 1 || dotSymbol < atSymbol + 2 || dotSymbol + 1 >= req.body.email.length) {
+                   next(Boom.create(401, "The following email address: " + req.body.email + " is invalid.", {
+                       type: "invalid-email"
+                   }));
+               }
+               else if (req.body.username.length <= 2) {
+                   next(Boom.create(401, "The username entered: " + req.body.username + " must be more than 2 characters.", {
+                       type: "invalid-username"
+                   }));
+               }
+               else if (req.body.username.indexOf(' ') >= 0) {
+                   next(Boom.create(401, "The username entered: " + req.body.username + " cannot contain spaces.", {
+                       type: "invalid-username"
+                   }));
+               }
+               else {
+                   newUser.save(function (err) {
+                       if (err) {
+                           next(err);
+                       }
+                       else {
+                           res.send({
+                               email: req.body.email,
+                               password: md5(req.body.password),
+                               username:req.body.username,
+                               tokens: token
+                           });
+                       }
+                   });
+               }
            }
-       }
-       else if (user.email == req.body.email) {
-           next(Boom.create(401, "The following email address: " + req.body.email + " already exists.", {
-               type: "email-exists"
-           }));
-       }
-       else if (user.username == req.body.username.toLowerCase()) {
-           next(Boom.create(401, "The following username: " + req.body.username + " already exists.", {
-               type:"username-exists"
-           }));
-       }
-    });
+           else if (user.email == req.body.email) {
+               next(Boom.create(401, "The following email address: " + req.body.email + " already exists.", {
+                   type: "email-exists"
+               }));
+           }
+           else if (user.username == req.body.username.toLowerCase()) {
+               next(Boom.create(401, "The following username: " + req.body.username + " already exists.", {
+                   type:"username-exists"
+               }));
+           }
+        });
+    } else {
+        next(Boom.create(400, "Incorrect parameters submitted", {
+            type: "incorrect-parameters"
+        }));
+    }
 });
 
 module.exports = router;
