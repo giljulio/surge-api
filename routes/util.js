@@ -48,6 +48,5 @@ module.exports.calculateControversial = function(values){
     } else if (avg >= 0){
         stdDev += 0.6;
     }
-    console.log("Stander dev after: " + stdDev);
     return stdDev;
 };
