@@ -264,12 +264,7 @@ router.post("/:video_id/vote/:vote_type/", [users.forceAuth, function (req, res,
                                 next(err);
                             }
                             else {
-                                res.send({
-                                    message: req.params.vote_type + " vote successful!",
-                                    upVotes: video.up_vote,
-                                    downVotes: video.down_vote,
-                                    type: req.params.vote_type + "-vote-success"
-                                });
+                                res.send(video);
                             }
                         });
                     } else {
