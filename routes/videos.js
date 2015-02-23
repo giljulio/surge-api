@@ -148,28 +148,36 @@ router.get("/", function (req, res, next) {
  *          dataType: number
  */
 router.post("/", [users.forceAuth, function (req, res, next) {
-        var video = new models.Video({
-            title: req.body.title,
-            url: req.body.url,
-            up_vote_users: [],
-            down_vote_users: [],
-            surge_rate: 0,
-            category: req.body.category,
-            uploader: req.user.id
+    var video = new models.Video({
+        title: req.body.title,
+        url: req.body.url,
+        up_vote_users: [],
+        down_vote_users: [],
+        surge_rate: 0,
+        category: req.body.category,
+        uploader: req.user.id
+    });
+
+    var video_url = req.body.url.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
+    if (req.body.title.length < 6) {
+        next(Boom.create(401, "The title needs to be at least six characters.", {
+            type: "invalid-video-title"
+        }));
+    }
+    else if(video_url != null) {
+        video.url = video_url[1];
+        video.save(function (err) {
+            if (err) {
+                next(err);
+            } else {
+                res.send(video);
+            }
         });
-        if (req.body.title.length < 6) {
-            next(Boom.create(401, "The title needs to be at least six characters.", {
-                type: "invalid-video-title"
-            }));
-        } else {
-            video.save(function (err) {
-                if (err) {
-                    next(err);
-                } else {
-                    res.send(video);
-                }
-            });
-        }
+    } else {
+        next(Boom.create(401, "The YouTube link provided is not valid.", {
+            type: "invalid-video-url"
+        }));
+    }
 }]);
 
 /**
