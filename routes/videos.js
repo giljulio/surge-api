@@ -69,7 +69,7 @@ router.get("/", function (req, res, next) {
             };
         } else if(req.query.sort == "top"){
             sort = {
-                top: -1
+                up_vote: -1
             };
         } else if(req.query.sort == "controversial"){
             sort = {
@@ -79,9 +79,7 @@ router.get("/", function (req, res, next) {
             sort = {
                 timestamp: -1
             };
-            filter = {
-                featured: true
-            };
+            filter["featured"] = true;
         }
     }
 
@@ -97,7 +95,8 @@ router.get("/", function (req, res, next) {
             }));
         } else {
             var response = [];
-            videos.forEach(function(video){
+            var count = 0;
+            videos.forEach(function(video, index){
                 video = video.toObject();
                 models.User
                     .where({_id: video.uploader})
@@ -107,8 +106,9 @@ router.get("/", function (req, res, next) {
                         next(err);
                     } else {
                         video.uploader = users[0];
-                        response.push(video);
-                        if (response.length == videos.length) {
+                        response[index] = video;
+                        count = count + 1;
+                        if (count == videos.length) {
                             res.send(response);
                         }
                     }
