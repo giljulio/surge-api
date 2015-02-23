@@ -203,7 +203,7 @@ var forceAuth = function (req, res, next) { //Function that checks their authent
 
 /**
  * @swagger
- * path: /favourites/{user_id}
+ * path: /{user_id}/favourites
  * operations:
  *   -  httpMethod: GET
  *      summary: Retrieve a users favourites
@@ -219,8 +219,24 @@ var forceAuth = function (req, res, next) { //Function that checks their authent
  *          dataType: string
  */
 
-router.get("/favourites/:user_id/", [forceAuth, function(req, res, next){      //Example function of calling a function that requires a user to be authorised
-        res.send({response: "Success!"});
+router.get("/:user_id/favourites/", [forceAuth, function(req, res, next){      //Example function of calling a function that requires a user to be authorised
+    var query = models.User.where({'_id': req.params.user_id}).select(" -_id favourites");
+    query.findOne(function (err, user) {
+        if(user) {
+            var query = models.Video.where({'_id': { $in: user.favourites }});
+            query.find(function (err, videos) {
+                if(videos) {
+                    res.send(videos);
+                } else {
+                    res.send(user);
+                }
+            });
+        } else {
+            next(Boom.create(404, "user id not found: " + req.params.user_id, {
+                type: "user-not-found"
+            }));
+        }
+    });
 }]);
 
 
