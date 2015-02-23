@@ -125,6 +125,7 @@ router.get("/", function (req, res, next) {
  * operations:
  *   -  httpMethod: POST
  *      summary: Post a Video
+ *      nickname: videoPost
  *      parameters:
  *        - name: title
  *          description: video title

@@ -200,8 +200,27 @@ var forceAuth = function (req, res, next) { //Function that checks their authent
 
 };
 
-router.get("/:user_id/favs", [forceAuth, function(req, res, next){      //Example function of calling a function that requires a user to be authorised
-    res.send({response: "Success!"});
+
+/**
+ * @swagger
+ * path: /favourites/{user_id}
+ * operations:
+ *   -  httpMethod: GET
+ *      summary: Retrieve a users favourites
+ *      notes: Submit a users ID and their authentication token and an array of a users favourited videos is returned.
+ *      nickname: Favourite
+ *      consumes:
+ *        - application/x-www-form-urlencoded
+ *      parameters:
+ *        - name: user_id
+ *          description: the users ID
+ *          paramType: body
+ *          required: true
+ *          dataType: string
+ */
+
+router.get("/favourites/:user_id/", [forceAuth, function(req, res, next){      //Example function of calling a function that requires a user to be authorised
+        res.send({response: "Success!"});
 }]);
 
 
@@ -224,6 +243,8 @@ router.get("/:user_id/favs", [forceAuth, function(req, res, next){      //Exampl
  *          required: true
  *          dataType: string
  */
+
+
 router.delete("/:user_id",[forceAuth, function (req, res, next) {          //Deletes a user by ID
     if(util.isSet([req.params.user_id])) {
         User.remove({ _id: req.params.user_id }, function(err) {
