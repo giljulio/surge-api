@@ -80,14 +80,23 @@ router.get("/:user_id", [checkAuth, function (req, res, next) {     // returns a
                     type: "failed-connection"
                 }));
             } else {
-                if (user) {
-                    var userRes = {
-                        id: user._id, username: user.username
-                    };
-                    if (user.email) {
-                        userRes.email = user.email;
-                    }
-                    res.send(userRes);
+                if(user) {
+                    var query = models.Video.where({'uploader': req.params.user_id});
+                    query.find(function (err, videos) {
+                        var userRes = {
+                            id: user._id, username: user.username
+                        };
+                        if (user.email) {
+                            userRes.email = user.email;
+                        }
+                        if(videos) {
+                            userRes.videos = videos;
+                        }
+                        else {
+                            userRes.videos = [];
+                        }
+                        res.send(userRes);
+                    });
                 } else {
                     next(Boom.create(404, "user id not found: " + req.params.user_id, {
                         type: "user-not-found"
