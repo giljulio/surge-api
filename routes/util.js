@@ -50,3 +50,13 @@ module.exports.calculateControversial = function(values){
     }
     return stdDev;
 };
+
+module.exports.isSet  = function(a){
+    for(var i = 0; i < a.length; i++){
+        if(typeof a[i] != 'undefined'){
+            continue;
+        }
+        return false;
+    }
+    return true;
+};

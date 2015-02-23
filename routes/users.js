@@ -125,7 +125,7 @@ router.get("/:user_id", [checkAuth, function (req, res, next) {     // returns a
  *          dataType: string
  */
 router.post("/authenticate", function (req, res, next) {        //If the user submits a correct email and password a token and expiration date will be generated
-    if(req.body.user_login && req.body.password) {
+    if(util.isSet([req.body.user_login, req.body.password])) {
         var query = models.User.where({ $or:[{'email': req.body.user_login},{'username': (req.body.user_login.toLowerCase())}]}).where({'password': md5(req.body.password)});
         query.findOne(function (err, user) {
             if (err) {
@@ -216,7 +216,7 @@ router.get("/:user_id/favs", [forceAuth, function(req, res, next){      //Exampl
  *          dataType: string
  */
 router.delete("/:user_id",[forceAuth, function (req, res, next) {          //Deletes a user by ID
-    if(req.params.user_id) {
+    if(util.isSet([req.params.user_id])) {
         User.remove({ _id: req.params.user_id }, function(err) {
             if (!err) {
                 res.send({message: "User with ID " + req.params.user_id + " has been deleted."});
@@ -263,7 +263,7 @@ router.delete("/:user_id",[forceAuth, function (req, res, next) {          //Del
  */
 
 router.post("/", function(req, res, next) {
-    if(req.body.username && req.body.email && req.body.password) {
+    if(util.isSet([req.body.username, req.body.email, req.body.password])) {
         var query = models.User.where({ $or:[{'email': req.body.email},{'username': (req.body.username.toLowerCase())}]});
         query.findOne(function (err, user) {
             console.log(user);

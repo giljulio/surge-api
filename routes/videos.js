@@ -125,10 +125,6 @@ router.get("/", function (req, res, next) {
  * operations:
  *   -  httpMethod: POST
  *      summary: Post a Video
- *      notes: These include title, url, category
- *      nickname: Videos
- *      consumes:
- *        - application/json
  *      parameters:
  *        - name: title
  *          description: video title
@@ -139,6 +135,10 @@ router.get("/", function (req, res, next) {
  *          description: video url
  *          paramType: form
  *          required: true
+ *      notes: These include title, url, category
+ *      nickname: Videos
+ *      consumes:
+ *        - application/json
  *          dataType: string
  *        - name: category
  *          description: video category
@@ -147,7 +147,7 @@ router.get("/", function (req, res, next) {
  *          dataType: number
  */
 router.post("/", [users.forceAuth, function (req, res, next) {
-    if(req.body.title && req.body.url && req.body.category) {
+    if(utils.isSet([req.body.title, req.body.url, req.body.category])) {
         var video = new models.Video({
             title: req.body.title,
             url: req.body.url,
