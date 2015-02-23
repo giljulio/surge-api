@@ -281,6 +281,60 @@ router.post("/:video_id/votes/", [users.forceAuth, function (req, res, next) {
     }
 }]);
 
+/**
+ * @swagger
+ * path: /{video_id}/favourites/
+ * operations:
+ *   -  httpMethod: POST
+ *      summary: Favourite or un-favourite a video
+ *      notes: Input a valid video ID and the video will be added to the users favourites array or removed if they have already favourited it. The user must be authenticated.
+ *      nickname: videoFavourite
+ *      consumes:
+ *        - application/json
+ *      parameters:
+ *        - name: video_id
+ *          description: ID of the video
+ *          paramType: form
+ *          required: true
+ *          dataType: string
+ */
 
+router.post("/:video_id/favourites/", [users.forceAuth, function (req, res, next) {
+    if(util.isSet([req.params.video_id])) {
+        var query = models.Video.where({'_id': req.params.video_id});
+        query.findOne(function (err, video) {
+            if (video) {
+                var query = models.User.where({_id: req.user.id});
+                query.findOne(function (err, user) {
+                    if(user) {
+                        if (user.favourites.indexOf(req.params.video_id) > -1) {
+                            user.favourites.pull(req.params.video_id);
+                            user.save();
+
+                            res.send({message: "Video has been un-favourited", type: "video-unfavourite"});
+                        } else {
+                            user.favourites.push(req.params.video_id);
+                            user.save();
+
+                            res.send({message: "Video has been favourited", type: "video-favourite"});
+                        }
+                    } else {
+                        next(Boom.create(404, "user not found", {
+                            type:"user-not-found"
+                        }));
+                    }
+                });
+            } else {
+                next(Boom.create(404, "video not found", {
+                    type:"video-not-found"
+                }));
+            }
+        });
+    } else {
+        next(Boom.create(400, "Incorrect parameters submitted", {
+            type: "incorrect-parameters"
+        }));
+    }
+}]);
 
 module.exports = router;
