@@ -148,12 +148,9 @@ router.get("/", function (req, res, next) {
  *          dataType: number
  */
 router.post("/", [users.forceAuth, function (req, res, next) {
-    if(utils.isSet([req.body.title, req.body.url, req.body.category])) {
         var video = new models.Video({
             title: req.body.title,
             url: req.body.url,
-            up_vote: 0,
-            down_vote: 0,
             up_vote_users: [],
             down_vote_users: [],
             surge_rate: 0,
@@ -173,11 +170,6 @@ router.post("/", [users.forceAuth, function (req, res, next) {
                 }
             });
         }
-    } else {
-        next(Boom.create(400, "Incorrect parameters submitted", {
-            type: "incorrect-parameters"
-        }));
-    }
 }]);
 
 /**

@@ -10,11 +10,11 @@ module.exports.Video = mongoose.model('Video', {
     },
     up_vote: {
         type:Number,
-        required: true
+        default: 0
     },
     down_vote: {
         type:Number,
-        required: true
+        default: 0
     },
     up_votes_users: {
         type: [String]
