@@ -57,6 +57,10 @@ router.get("/", function (req, res, next) {
         };
     }
 
+    if(req.query.search){
+        filter["title"] = req.query.search;
+    }
+
     var sort = {};
     if(req.query.sort){
         if(req.query.sort == "surge_rate"){
