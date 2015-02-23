@@ -204,7 +204,7 @@ setInterval(function () {
 
 /**
  * @swagger
- * path: /{video_id}/vote/{vote_type}/
+ * path: /{video_id}/vote/
  * operations:
  *   -  httpMethod: POST
  *      summary: Up or down vote a video
@@ -220,13 +220,13 @@ setInterval(function () {
  *          dataType: string
  *        - name: vote_type
  *          description: Whether they are up or down voting the video
- *          paramType: form
+ *          paramType: body
  *          required: true
  *          dataType: string
  */
 
-router.post("/:video_id/vote/:vote_type/", [users.forceAuth, function (req, res, next) {
-    if(req.params.video_id && ((req.params.vote_type === "up")||(req.params.vote_type === "down"))) {
+router.post("/:video_id/vote/", [users.forceAuth, function (req, res, next) {
+    if(req.params.video_id && ((req.body.vote_type === "up")||(req.body.vote_type === "down"))) {
         var query = models.Video.where({'_id': req.params.video_id});
         query.findOne(function (err, video) {
             if(video) {
@@ -245,7 +245,7 @@ router.post("/:video_id/vote/:vote_type/", [users.forceAuth, function (req, res,
                             uploader.save();
                             video.save();
                         }
-                        if (req.params.vote_type === "up") {
+                        if (req.body.vote_type === "up") {
                             video.up_vote = video.down_vote + 1;
                             uploader.surge_points = uploader.surge_points +10;
                             video.up_votes_users.push(req.user.id);
