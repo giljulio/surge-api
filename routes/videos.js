@@ -243,7 +243,7 @@ router.post("/:video_id/votes/", [users.forceAuth, function (req, res, next) {
                             video.save();
                         }
                         if (req.body.vote_type === "up") {
-                            video.up_vote = video.down_vote + 1;
+                            video.up_vote = video.up_vote + 1;
                             uploader.surge_points = uploader.surge_points +10;
                             video.up_votes_users.push(req.user.id);
                         } else {
@@ -280,5 +280,7 @@ router.post("/:video_id/votes/", [users.forceAuth, function (req, res, next) {
         }));
     }
 }]);
+
+
 
 module.exports = router;
