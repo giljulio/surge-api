@@ -165,9 +165,7 @@ router.post("/", [users.forceAuth, function (req, res, next) {
         }));
     }
     else if(video_url != null) {
-        console.log("video id = ",video_url[1]);
         video.url = video_url[1];
-        console.log(video.url);
         video.save(function (err) {
             if (err) {
                 next(err);
@@ -176,7 +174,6 @@ router.post("/", [users.forceAuth, function (req, res, next) {
             }
         });
     } else {
-        console.log("The youtube url is not valid.");
         next(Boom.create(401, "The YouTube link provided is not valid.", {
             type: "invalid-video-url"
         }));
