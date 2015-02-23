@@ -230,7 +230,7 @@ router.post("/:video_id/vote/", [users.forceAuth, function (req, res, next) {
         var query = models.Video.where({'_id': req.params.video_id});
         query.findOne(function (err, video) {
             if(video) {
-                var uploaderQuery = models.User.where({'_id': video.uploader});
+                var uploaderQuery = models.User.where({'_id': video.uploader}).select("_id username surge_points");
                 uploaderQuery.findOne(function (err, uploader) {
                     if (uploader) {
                         if (video.down_votes_users.length != video.down_votes_users.pull(req.user.id).length) {
@@ -260,7 +260,9 @@ router.post("/:video_id/vote/", [users.forceAuth, function (req, res, next) {
                                 next(err);
                             }
                             else {
-                                res.send(video);
+                                var v = video.toObject();
+                                v.uploader = uploader;
+                                res.send(v);
                             }
                         });
                     } else {
