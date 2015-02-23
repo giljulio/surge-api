@@ -204,7 +204,7 @@ setInterval(function () {
 
 /**
  * @swagger
- * path: /{video_id}/vote/
+ * path: /{video_id}/votes/
  * operations:
  *   -  httpMethod: POST
  *      summary: Up or down vote a video
@@ -225,7 +225,7 @@ setInterval(function () {
  *          dataType: string
  */
 
-router.post("/:video_id/vote/", [users.forceAuth, function (req, res, next) {
+router.post("/:video_id/votes/", [users.forceAuth, function (req, res, next) {
     if(req.params.video_id && ((req.body.vote_type === "up")||(req.body.vote_type === "down"))) {
         var query = models.Video.where({'_id': req.params.video_id});
         query.findOne(function (err, video) {
