@@ -135,10 +135,6 @@ router.get("/", function (req, res, next) {
  *          description: video url
  *          paramType: form
  *          required: true
- *      notes: These include title, url, category
- *      nickname: Videos
- *      consumes:
- *        - application/json
  *          dataType: string
  *        - name: category
  *          description: video category
