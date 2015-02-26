@@ -58,7 +58,7 @@ router.get("/", function (req, res, next) {
     }
 
     if(req.query.search){
-        filter["title"] = req.query.search;
+        filter["title"] = new RegExp(".*" + req.query.search + ".*", "i");
     }
 
     var sort = {};
@@ -98,26 +98,30 @@ router.get("/", function (req, res, next) {
                 type: "video_id-not-found"
             }));
         } else {
-            var response = [];
-            var count = 0;
-            videos.forEach(function(video, index){
-                video = video.toObject();
-                models.User
-                    .where({_id: video.uploader})
-                    .select("_id username surge_points")
-                    .find(function(err, users) {
-                    if (err) {
-                        next(err);
-                    } else {
-                        video.uploader = users[0];
-                        response[index] = video;
-                        count = count + 1;
-                        if (count == videos.length) {
-                            res.send(response);
-                        }
-                    }
+            if(videos.length == 0){
+                res.send([]);
+            } else {
+                var response = [];
+                var count = 0;
+                videos.forEach(function (video, index) {
+                    video = video.toObject();
+                    models.User
+                        .where({_id: video.uploader})
+                        .select("_id username surge_points")
+                        .find(function (err, users) {
+                            if (err) {
+                                next(err);
+                            } else {
+                                video.uploader = users[0];
+                                response[index] = video;
+                                count = count + 1;
+                                if (count == videos.length) {
+                                    res.send(response);
+                                }
+                            }
+                        });
                 });
-            });
+            }
         }
     });
 });
