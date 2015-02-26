@@ -242,38 +242,44 @@ router.post("/:video_id/votes/", [users.forceAuth, function (req, res, next) {
                 var uploaderQuery = models.User.where({'_id': video.uploader}).select("_id username surge_points");
                 uploaderQuery.findOne(function (err, uploader) {
                     if (uploader) {
-                        if (video.down_votes_users.length != video.down_votes_users.pull(req.user.id).length) {
-                            video.down_vote = video.down_vote - 1;
-                            uploader.surge_points = uploader.surge_points +5;
+                        if(uploader._id != video.uploader) {
+                            if (video.down_votes_users.length != video.down_votes_users.pull(req.user.id).length) {
+                                video.down_vote = video.down_vote - 1;
+                                uploader.surge_points = uploader.surge_points + 5;
+                                uploader.save();
+                                video.save();
+                            }
+                            if (video.up_votes_users.length != video.up_votes_users.pull(req.user.id).length) {
+                                video.up_vote = video.up_vote - 1;
+                                uploader.surge_points = uploader.surge_points - 10;
+                                uploader.save();
+                                video.save();
+                            }
+                            if (req.body.vote_type === "up") {
+                                video.up_vote = video.up_vote + 1;
+                                uploader.surge_points = uploader.surge_points + 10;
+                                video.up_votes_users.push(req.user.id);
+                            } else {
+                                video.down_vote = video.down_vote + 1;
+                                uploader.surge_points = uploader.surge_points - 5;
+                                video.down_votes_users.push(req.user.id);
+                            }
                             uploader.save();
-                            video.save();
-                        }
-                        if (video.up_votes_users.length != video.up_votes_users.pull(req.user.id).length) {
-                            video.up_vote = video.up_vote - 1;
-                            uploader.surge_points = uploader.surge_points -10;
-                            uploader.save();
-                            video.save();
-                        }
-                        if (req.body.vote_type === "up") {
-                            video.up_vote = video.up_vote + 1;
-                            uploader.surge_points = uploader.surge_points +10;
-                            video.up_votes_users.push(req.user.id);
+                            video.save(function (err) {
+                                if (err) {
+                                    next(err);
+                                }
+                                else {
+                                    var v = video.toObject();
+                                    v.uploader = uploader;
+                                    res.send(v);
+                                }
+                            });
                         } else {
-                            video.down_vote = video.down_vote + 1;
-                            uploader.surge_points = uploader.surge_points -5;
-                            video.down_votes_users.push(req.user.id);
+                            next(Boom.create(401, "You cannot vote on your own videos", {
+                                type: "self-vote-disallowed"
+                            }));
                         }
-                        uploader.save();
-                        video.save(function (err) {
-                            if (err) {
-                                next(err);
-                            }
-                            else {
-                                var v = video.toObject();
-                                v.uploader = uploader;
-                                res.send(v);
-                            }
-                        });
                     } else {
                         next(Boom.create(404, "uploader not found", {
                             type:"uploader-not-found"
