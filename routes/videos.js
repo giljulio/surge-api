@@ -242,7 +242,7 @@ router.post("/:video_id/votes/", [users.forceAuth, function (req, res, next) {
                 var uploaderQuery = models.User.where({'_id': video.uploader}).select("_id username surge_points");
                 uploaderQuery.findOne(function (err, uploader) {
                     if (uploader) {
-                        if(uploader._id != video.uploader) {
+                        if(req.user.id != video.uploader) {
                             if (video.down_votes_users.length != video.down_votes_users.pull(req.user.id).length) {
                                 video.down_vote = video.down_vote - 1;
                                 uploader.surge_points = uploader.surge_points + 5;
