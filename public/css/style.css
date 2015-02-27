@@ -73,7 +73,7 @@
     display: block;
 }
 
-/*  GO FULL WIDTH BELOW 480 PIXELS */
+/*  GO FULL WIDTH BELOW 700 PIXELS */
 @media only screen and (max-width: 700px) {
     .col {  margin: 0; }
 
@@ -82,6 +82,10 @@
     }
     .desktop_only {
         display: none;
+    }
+    .center-vertically {
+        width: 90% !important;
+        padding: 0 5% !important;
     }
 }
 
@@ -150,7 +154,8 @@ h2 {
     -webkit-transform: translateY(-50%);
     -moz-transform: translateY(-50%);
     -ms-transform: translateY(-50%);
-    width: 100%;
+    width: 60%;
+    padding: 0 20%;
 }
 .stores {
     list-style: none;
