@@ -162,15 +162,16 @@ router.post("/", [users.forceAuth, function (req, res, next) {
         uploader: req.user.id,
         watched: []
     });
+    var valid_url = req.body.url.match(/(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/);
+    var youtube_url = req.body.url.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
 
-    var video_url = req.body.url.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
     if (req.body.title.length < 6) {
         next(Boom.create(401, "The title needs to be at least six characters.", {
             type: "invalid-video-title"
         }));
     }
-    else if(video_url != null) {
-        video.url = video_url[1];
+    else if(youtube_url != null) {
+        video.url = youtube_url[1];
         video.save(function (err) {
             if (err) {
                 next(err);
@@ -178,8 +179,12 @@ router.post("/", [users.forceAuth, function (req, res, next) {
                 res.send(video);
             }
         });
+    } else if (valid_url != null) {
+        next(Boom.create(401, "The link provided is from a site that is not yet supported.", {
+            type: "unsupported-site-url"
+        }));
     } else {
-        next(Boom.create(401, "The YouTube link provided is not valid.", {
+        next(Boom.create(401, "The link provided is not valid.", {
             type: "invalid-video-url"
         }));
     }
