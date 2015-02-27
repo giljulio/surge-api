@@ -235,6 +235,50 @@ setInterval(function () {
 
 /**
  * @swagger
+ * path: /{video_id}/watched/
+ * operations:
+ *   -  httpMethod: POST
+ *      summary:
+ *      notes: Input a valid video ID and it will add the user to the list of watched
+ *      nickname: videoVotes
+ *      consumes:
+ *        - application/json
+ *      parameters:
+ *        - name: video_id
+ *          description: ID of the video
+ *          paramType: form
+ *          required: true
+ *          dataType: string
+ */
+
+
+router.post("/:video_id/watched/", [users.forceAuth, function (req, res, next) {
+    if(req.params.video_id) {
+        var query = models.Video.where({'_id': req.params.video_id});
+        query.findOne(function (err, video) {
+            if(video) {
+                if(video.user_meta.watched.indexOf(req.user.id) > -1) {
+                    res.send({message: "video has already watched by user "+ req.user.id, type:"video-already-watched"});
+                } else {
+                    video.user_meta.watched.push(req.user.id);
+                    video.save();
+                    res.send({message: "video added to watched list for user "+ req.user.id, type:"video-watched-success"});
+                }
+            } else {
+                next(Boom.create(404, "video not found", {
+                    type:"video-not-found"
+                }));
+            }
+        });
+    } else {
+        next(Boom.create(400, "Incorrect parameters submitted", {
+            type: "incorrect-parameters"
+        }));
+    }
+}]);
+
+/**
+ * @swagger
  * path: /{video_id}/votes/
  * operations:
  *   -  httpMethod: POST
@@ -256,26 +300,7 @@ setInterval(function () {
  *          dataType: string
  */
 
-router.post("/:video_id/watched/", [users.forceAuth, function (req, res, next) {
-    if(req.params.video_id) {
-        var query = models.Video.where({'_id': req.params.video_id});
-        query.findOne(function (err, video) {
-            if(video) {
-                video.user_meta.watched.push(req.user.id);
-                video.save();
-                res.send({message: "video added to watched list for user "+ req.user.id, type:"video-watched-success"});
-            } else {
-                next(Boom.create(404, "video not found", {
-                    type:"video-not-found"
-                }));
-            }
-        });
-    } else {
-        next(Boom.create(400, "Incorrect parameters submitted", {
-            type: "incorrect-parameters"
-        }));
-    }
-}]);
+
 
 router.post("/:video_id/votes/", [users.forceAuth, function (req, res, next) {
     if(req.params.video_id && ((req.body.vote_type === "up")||(req.body.vote_type === "down"))) {
