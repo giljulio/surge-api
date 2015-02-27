@@ -159,7 +159,8 @@ router.post("/", [users.forceAuth, function (req, res, next) {
         down_vote_users: [],
         surge_rate: 0,
         category: req.body.category,
-        uploader: req.user.id
+        uploader: req.user.id,
+        watched: []
     });
 
     var video_url = req.body.url.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
