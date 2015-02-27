@@ -130,7 +130,6 @@ h2 {
 .phone {
     height: 75%;
     width: inherit;
-
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -145,6 +144,9 @@ h2 {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+    -moz-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
     width: 100%;
 }
 .stores {
