@@ -49,7 +49,7 @@ var models = require('./models');
  *          dataType: number
  */
 
-router.get("/", function (req, res, next) {
+router.get("/", [users.checkAuth, function (req, res, next) {
     var filter = {};
     if(req.query.category){
         filter = {
@@ -91,7 +91,7 @@ router.get("/", function (req, res, next) {
     query.skip(req.query.skip || 0)
         .limit(req.query.limit || 30)
         .sort(sort)
-        .select("_id title url category up_vote down_vote surge_rate uploader featured controversial timestamp")
+        .select("_id title url category up_vote down_vote surge_rate uploader featured controversial timestamp user_meta")
         .find(function (err, videos) {
         if(err) {
             next(Boom.create(403, "Video not found for this particular ID " + req.params.url, {
@@ -104,7 +104,20 @@ router.get("/", function (req, res, next) {
                 var response = [];
                 var count = 0;
                 videos.forEach(function (video, index) {
+                    /*if(req.user) {
+                        if (video.user_meta.watched.indexOf(req.user.id) > -1) {
+                            video.user_meta.watched = "true";
+                        }
+                    }*/
                     video = video.toObject();
+                    /*if(video.user_meta.watched == "true") {
+                        video.user_meta.watched = {};
+                        video.user_meta.watched = "true";
+                    } else {
+                        video.user_meta.watched = {};
+                        video.user_meta.watched = "false";
+                    }*/
+
                     models.User
                         .where({_id: video.uploader})
                         .select("_id username surge_points")
@@ -124,7 +137,7 @@ router.get("/", function (req, res, next) {
             }
         }
     });
-});
+}]);
 
 
 /**
@@ -160,7 +173,11 @@ router.post("/", [users.forceAuth, function (req, res, next) {
         surge_rate: 0,
         category: req.body.category,
         uploader: req.user.id,
-        watched: []
+        user_meta: {
+            watched : {
+                type: [String]
+            }
+        }
     });
 
     var video_url = req.body.url.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
@@ -234,6 +251,27 @@ setInterval(function () {
  *          required: true
  *          dataType: string
  */
+
+router.post("/:video_id/watched/", [users.forceAuth, function (req, res, next) {
+    if(req.params.video_id) {
+        var query = models.Video.where({'_id': req.params.video_id});
+        query.findOne(function (err, video) {
+            if(video) {
+                video.user_meta.watched.push(req.user.id);
+                video.save();
+                res.send({message: "video added to watched list for user "+ req.user.id, type:"video-watched-success"});
+            } else {
+                next(Boom.create(404, "video not found", {
+                    type:"video-not-found"
+                }));
+            }
+        });
+    } else {
+        next(Boom.create(400, "Incorrect parameters submitted", {
+            type: "incorrect-parameters"
+        }));
+    }
+}]);
 
 router.post("/:video_id/votes/", [users.forceAuth, function (req, res, next) {
     if(req.params.video_id && ((req.body.vote_type === "up")||(req.body.vote_type === "down"))) {

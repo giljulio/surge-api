@@ -24,8 +24,8 @@ var expirationTime = 10512000000; //4 Months in Milliseconds
  * Function that checks their authentication token as to whether it's valid or not,
  * not forced so will return a value letting the client they are not authenticated but they can carry on
  */
-var checkAuth = exports.checkAuth = function (req, res, next) {
-    var query = models.User.where({_id: req.params.user_id, 'tokens.token': req.headers.authorization});
+var checkAuth = function (req, res, next) {
+    var query = models.User.where({'tokens.token': req.headers.authorization});
     query.findOne(function (err, tok) {
         if(err) {
             next(Boom.create(500, "DB Connection Failed", {
@@ -384,5 +384,6 @@ router.post("/", function(req, res, next) {
 
 module.exports = router;
 module.exports.forceAuth = forceAuth;
+module.exports.checkAuth = checkAuth;
 module.exports.User = models.User;
 module.exports.Token = models.Token;

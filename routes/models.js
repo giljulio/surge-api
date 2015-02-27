@@ -48,8 +48,10 @@ module.exports.Video = mongoose.model('Video', {
     featured: {
         type: Boolean
     },
-    watched : {
-        type: [String]
+    user_meta: {
+        watched : {
+            type: [String]
+        }
     }
 });
 
