@@ -47,6 +47,9 @@ module.exports.Video = mongoose.model('Video', {
     },
     featured: {
         type: Boolean
+    },
+    watched : {
+        type: [String]
     }
 });
 
