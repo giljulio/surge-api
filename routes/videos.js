@@ -186,8 +186,7 @@ router.post("/", [users.forceAuth, function (req, res, next) {
         next(Boom.create(401, "The title needs to be at least six characters.", {
             type: "invalid-video-title"
         }));
-    }
-    else if(youtube_url != null) {
+    } else if(youtube_url != null) {
         video.url = youtube_url[1];
         video.save(function (err) {
             if (err) {
