@@ -1,33 +1,46 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Surge - Viral Videos</title>
-        <link href='http://fonts.googleapis.com/css?family=Lato:300,400,900' rel='stylesheet' type='text/css'>
-        <!--[if lt IE 9]>
-        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
-        <link rel="stylesheet" href="css/style.css">
-        <meta name=viewport content="width=device-width; height=device-height; initial-scale=1; user-scalable:no">
+<head>
+    <meta charset="utf-8">
+    <title>Surge - Viral Videos</title>
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
 
-    </head>
-    <body>
-    <div id="backgroundBox"></div>
-        <div id="Wrapper">
-            <div id="MainBox">
-                <div id="appInfoBox">
+    <link href='http://fonts.googleapis.com/css?family=Lato:300,400,900' rel='stylesheet' type='text/css'>
+    <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+    <div class="main-container section group">
+        <section class="col span_6_of_12" style="height: 100%;">
+            <div class="about-container">
+                <div class="center-vertically">
                     <h1>surge</h1>
-                    <span id="sloganText">Watch your favourite videos go viral</span>
-                    <div id="appStoreBox">
-                        <a href="#" ><img id="gPlay" src="images/gPlay.png"></a>
-                        <a href="#" ><img id="appStore" src="images/appStore.png"></a>
-                    </div>
-                    <!--<p id="contactUs">Contact us at <span id="emailAddress">admin@trysurge.com</span></p>-->
-                </div>
-                <div id="phoneBox">
-                    <img src ="images/nexus%20rework.png">
+                    <h2 id="sloganText">Watch your favourite videos go viral</h2>
+                    <ul class="stores">
+                        <li>
+                            <a href="#" title="Coming soon..." onclick="alert('We\'re working hard on the android app. We aim to launch in the next few months :)');">
+                                <img src="images/google-play.png" />
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" title="Coming soon..." onclick="alert('Coming soon...');">
+                                <img src="images/app-store.png"/>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </div>
-    </body>
+        </section>
+        <section class="col span_6_of_12 desktop_only" style="height: 100%;">
+            <div class="phone-container">
+                <img class="phone" src="images/nexus%20rework.png" />
+            </div>
+        </section>
+    </div>
+
+</body>
 </html>
