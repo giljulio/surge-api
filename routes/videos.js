@@ -239,7 +239,7 @@ setInterval(function () {
  * operations:
  *   -  httpMethod: POST
  *      summary:
- *      notes: Input a valid video ID and it will add the user to the list of watched
+ *      notes: Input a valid video ID and it will add the user to the list of people that have watched the video. The user must be authenticated.
  *      nickname: videoVotes
  *      consumes:
  *        - application/json
