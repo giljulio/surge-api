@@ -69,13 +69,16 @@ var randnum = Math.floor(Math.random()*1111)
 //    .export(module);
 
 
+//qasim's test
+
+
 suite.discuss('When using your awesome API')
     .discuss('Post a video that is valid')
     .use('localhost', 3000)
     .setHeader('Content-Type', 'application/json')
     .setHeader('Authorization', '876iY2ZlM_zTvPNsB64U5sfiEewmVDSqE_sIKJmkQ3j0qc2pk6bKNg')
     .post('/videos', { title: "match of the day",  url: "www.youtube.com/watch?v=Xr8yTjgHvv4", category: 5 })
-    .expect("Xr8yTjgHvv4",  function (err, res, body){
+    .expect("the correct youtube video ID",  function (err, res, body){
         var result = JSON.parse(body);
         console.log(result);
         assert.include(result.url, 'Xr8yTjgHvv4')
@@ -83,12 +86,24 @@ suite.discuss('When using your awesome API')
     .export(module);
 
 suite.discuss('When using your awesome API')
-    .discuss('Post a video that does not have the correct token')
+    .discuss('Searching for Valid Video')
     .use('localhost', 3000)
     .setHeader('Content-Type', 'application/json')
-    .post('/videos', { title: "match of the day",  url: "www.youtube.com/watch?v=Xr8yTjgHvv4", category: 5 })
-    .expect(403)
+    .get('videos/?search=ian')
+    .expect("Should get back Ian Holloways Video",  function (err, res, body){
+        var obj = JSON.parse(body);
+        console.log(obj);
+        assert.include(obj[0].url, 'ZZdAOyLKy90')
+    })
     .export(module);
 
 
+suite.discuss('When using your awesome API')
+    .discuss('Post a video that does not have the correct token')
+    .use('localhost', 3000)
+    .setHeader('Content-Type', 'application/json')
+    .setHeader('Authorization', '')
+    .post('/videos', { title: "match of the day",  url: "www.youtube.com/watch?v=Xr8yTjgHvv4", category: 5 })
+    .expect(403)
+    .export(module);
 
