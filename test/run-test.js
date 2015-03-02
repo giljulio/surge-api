@@ -70,7 +70,7 @@ var randnum = Math.floor(Math.random()*1111)
 
 
 suite.discuss('When using your awesome API')
-    .discuss('Post A Video')
+    .discuss('Post a video that is valid')
     .use('localhost', 3000)
     .setHeader('Content-Type', 'application/json')
     .setHeader('Authorization', '876iY2ZlM_zTvPNsB64U5sfiEewmVDSqE_sIKJmkQ3j0qc2pk6bKNg')
@@ -81,4 +81,14 @@ suite.discuss('When using your awesome API')
         assert.include(result.url, 'Xr8yTjgHvv4')
     })
     .export(module);
+
+suite.discuss('When using your awesome API')
+    .discuss('Post a video that does not have the correct token')
+    .use('localhost', 3000)
+    .setHeader('Content-Type', 'application/json')
+    .post('/videos', { title: "match of the day",  url: "www.youtube.com/watch?v=Xr8yTjgHvv4", category: 5 })
+    .expect(403)
+    .export(module);
+
+
 
