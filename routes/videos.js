@@ -238,7 +238,7 @@ setInterval(function () {
  * path: /{video_id}/watched/
  * operations:
  *   -  httpMethod: POST
- *      summary:
+ *      summary: Add a video to a users watched list
  *      notes: Input a valid video ID and it will add the user to the list of people that have watched the video. The user must be authenticated.
  *      nickname: videoVotes
  *      consumes:
