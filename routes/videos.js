@@ -101,7 +101,8 @@ router.get("/", [users.checkAuth, function (req, res, next) {
                 type: "video_id-not-found"
             }));
         } else {
-            if(videos.length == 0){
+            console.log(videos);
+            if(videos.length <1){
                 res.send([]);
             } else {
                 var response = [];
