@@ -50,6 +50,7 @@ var models = require('./models');
  */
 
 router.get("/", [users.checkAuth, function (req, res, next) {
+    req.query.search = req.query.search.trim();
     var filter = {};
     if(req.query.category){
         filter = {

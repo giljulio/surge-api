@@ -69,6 +69,8 @@ var randnum = Math.floor(Math.random()*1111)
 //    .export(module);
 
 
+
+
 //qasim's test
 
 
@@ -106,4 +108,31 @@ suite.discuss('When using your awesome API')
     .post('/videos', { title: "match of the day",  url: "www.youtube.com/watch?v=Xr8yTjgHvv4", category: 5 })
     .expect(403)
     .export(module);
+
+suite.discuss('When using your awesome API')
+    .discuss('Searching for Valid Video')
+    .use('localhost', 3000)
+    .setHeader('Content-Type', 'application/json')
+    .get('videos/?search=the')
+    .expect("Should get back Nigeal Farages Video",  function (err, res, body){
+        var obj = JSON.parse(body);
+        console.log(obj);
+        assert.include(obj[0].url, 'ynq_KqlmHIY')
+    })
+    .export(module);
+
+suite.discuss('When using your awesome API')
+    .discuss('Searching for Valid Video')
+    .use('localhost', 3000)
+    .setHeader('Content-Type', 'application/json')
+    .get('videos/?search=      the')
+    .expect("Should get back Nigeal Farages Video even with multiple white spaces",  function (err, res, body){
+        var obj = JSON.parse(body);
+        console.log(obj);
+        assert.include(obj[0].url, 'ynq_KqlmHIY')
+    })
+    .export(module);
+
+
+
 
