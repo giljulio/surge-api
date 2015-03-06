@@ -221,8 +221,31 @@ var forceAuth = function (req, res, next) { //Function that checks their authent
 router.get("/:user_id/uploads/", function(req, res, next){      //Example function of calling a function that requires a user to be authorised
     var query = models.Video.where({'uploader': req.params.user_id});
     query.find(function (err, videos) {
-    if(videos) {
-        res.send(videos);
+        console.log(videos);
+    if(videos.length > 0) {
+        var response = [];
+        var count = 0;
+
+        videos.forEach(function (video, index) {
+            var v =video.toObject();
+            models.User
+                .where({_id: video.uploader})
+                .select("_id username surge_points")
+                .find(function (err, users) {
+                    if (err) {
+                        next(err);
+                    } else {
+                        v.uploader = users[0];
+                        response[index] = v;
+                        count = count + 1;
+                        if (count == videos.length) {
+                            res.send(response);
+                        }
+                    }
+                });
+        });
+    } else if(videos) {
+      res.send({'type':'no-uploads', 'message':'The user has no uploads'})
     } else {
         next(Boom.create(404, "user id not found: " + req.params.user_id, {
             type: "user-not-found"
@@ -255,10 +278,29 @@ router.get("/:user_id/favourites/", function(req, res, next){      //Example fun
         if(user) {
             var query = models.Video.where({'_id': { $in: user.favourites }});
             query.find(function (err, videos) {
-                if(videos) {
-                    res.send(videos);
-                } else {
-                    res.send(user);
+                if (videos.length > 0) {
+                    var response = [];
+                    var count = 0;
+                    videos.forEach(function (video, index) {
+                        var v =video.toObject();
+                        models.User
+                            .where({_id: video.uploader})
+                            .select("_id username surge_points")
+                            .find(function (err, users) {
+                                if (err) {
+                                    next(err);
+                                } else {
+                                    v.uploader = users[0];
+                                    response[index] = v;
+                                    count = count + 1;
+                                    if (count == videos.length) {
+                                        res.send(response);
+                                    }
+                                }
+                            });
+                    });
+                } else if (videos) {
+                    res.send({'type': 'no-favourites', 'message': 'The user has no favourites'})
                 }
             });
         } else {
