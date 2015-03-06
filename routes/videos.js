@@ -105,19 +105,19 @@ router.get("/", [users.checkAuth, function (req, res, next) {
                 var response = [];
                 var count = 0;
                 videos.forEach(function (video, index) {
-                    /*if(req.user) {
+                    if(req.user) {
                         if (video.user_meta.watched.indexOf(req.user.id) > -1) {
                             video.user_meta.watched = "true";
                         }
-                    }*/
+                    }
                     video = video.toObject();
-                    /*if(video.user_meta.watched == "true") {
+                    if(video.user_meta.watched == "true") {
                         video.user_meta.watched = {};
                         video.user_meta.watched = "true";
                     } else {
                         video.user_meta.watched = {};
                         video.user_meta.watched = "false";
-                    }*/
+                    }
 
                     models.User
                         .where({_id: video.uploader})
