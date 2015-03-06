@@ -68,9 +68,6 @@ var randnum = Math.floor(Math.random()*1111)
 //    })
 //    .export(module);
 
-
-
-
 //qasim's test
 
 
@@ -132,6 +129,21 @@ suite.discuss('When using your awesome API')
         assert.include(obj[0].url, 'ynq_KqlmHIY')
     })
     .export(module);
+
+
+suite.discuss('When using your awesome API')
+    .discuss('Searching for Valid Video')
+    .use('localhost', 3000)
+    .setHeader('Content-Type', 'application/json')
+    .get('videos/?')
+    .expect("Should get back Nigeal Farages Video even with multiple white spaces",  function (err, res, body){
+        var obj = JSON.parse(body);
+        console.log(obj);
+        assert.include(obj[0].url, 'ynq_KqlmHIY')
+    })
+    .export(module);
+
+
 
 
 
