@@ -200,6 +200,36 @@ var forceAuth = function (req, res, next) { //Function that checks their authent
 
 };
 
+/**
+ * @swagger
+ * path: /{user_id}/uploads
+ * operations:
+ *   -  httpMethod: GET
+ *      summary: Retrieve a users uploads
+ *      notes: Submit a users ID and  an array of a users uploaded videos is returned.
+ *      nickname: Uploads
+ *      consumes:
+ *        - application/x-www-form-urlencoded
+ *      parameters:
+ *        - name: user_id
+ *          description: the users ID
+ *          paramType: body
+ *          required: true
+ *          dataType: string
+ */
+
+router.get("/:user_id/uploads/", function(req, res, next){      //Example function of calling a function that requires a user to be authorised
+    var query = models.Video.where({'uploader': req.params.user_id});
+    query.find(function (err, videos) {
+    if(videos) {
+        res.send(videos);
+    } else {
+        next(Boom.create(404, "user id not found: " + req.params.user_id, {
+            type: "user-not-found"
+        }));
+    }
+    })
+});
 
 /**
  * @swagger
@@ -207,7 +237,7 @@ var forceAuth = function (req, res, next) { //Function that checks their authent
  * operations:
  *   -  httpMethod: GET
  *      summary: Retrieve a users favourites
- *      notes: Submit a users ID and their authentication token and an array of a users favourited videos is returned.
+ *      notes: Submit a users ID and an array of a users favourited videos is returned.
  *      nickname: Favourite
  *      consumes:
  *        - application/x-www-form-urlencoded
@@ -219,7 +249,7 @@ var forceAuth = function (req, res, next) { //Function that checks their authent
  *          dataType: string
  */
 
-router.get("/:user_id/favourites/", [forceAuth, function(req, res, next){      //Example function of calling a function that requires a user to be authorised
+router.get("/:user_id/favourites/", function(req, res, next){      //Example function of calling a function that requires a user to be authorised
     var query = models.User.where({'_id': req.params.user_id}).select(" -_id favourites");
     query.findOne(function (err, user) {
         if(user) {
@@ -237,7 +267,7 @@ router.get("/:user_id/favourites/", [forceAuth, function(req, res, next){      /
             }));
         }
     });
-}]);
+});
 
 
 
