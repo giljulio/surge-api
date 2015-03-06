@@ -312,7 +312,6 @@ router.post("/", function(req, res, next) {
     if(util.isSet([req.body.username, req.body.email, req.body.password])) {
         var query = models.User.where({ $or:[{'email': req.body.email},{'username': (req.body.username.toLowerCase())}]});
         query.findOne(function (err, user) {
-            console.log(user);
            if (err) {
                next(Boom.create(500, "DB Connection Failed", {
                    type: "failed-connection"
