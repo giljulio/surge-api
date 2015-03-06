@@ -76,7 +76,8 @@ module.exports.User = mongoose.model('User', {
     achievements: [userAchievement],
     surge_points: {
         type: Number,
-        min: 0
+        min: 0,
+        deafult: 0
     },
     favourites: [String]
 });

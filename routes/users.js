@@ -326,6 +326,7 @@ router.post("/", function(req, res, next) {
                    email:req.body.email,
                    password:md5(req.body.password),
                    username:req.body.username,
+                   surge_points: 0,
                    tokens: token
                });
                var atSymbol = req.body.email.indexOf("@");

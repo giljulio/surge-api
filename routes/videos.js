@@ -195,8 +195,19 @@ router.post("/", [users.forceAuth, function (req, res, next) {
             if (err) {
                 next(err);
             } else {
-                res.send(video);
+                var query = models.User.where({_id: req.user.id}).select("_id username surge_points");
+                query.findOne(function (err, user) {
+                    if(user) {
+                        video.uploader = user;
+                        res.send(video);
+                    } else {
+                        next(Boom.create(404, "The user uploading the video cannot be found.", {
+                            type: "user-not-found"
+                        }));
+                    }
+                });
             }
+
         });
     } else if (valid_url != null) {
         next(Boom.create(401, "The link provided is from a site that is not yet supported.", {
