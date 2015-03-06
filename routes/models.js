@@ -46,7 +46,8 @@ module.exports.Video = mongoose.model('Video', {
         required: true
     },
     featured: {
-        type: Boolean
+        type: Boolean,
+        default:false
     },
     user_meta: {
         watched : {
