@@ -69,7 +69,7 @@ var checkAuth = function (req, res, next) {
 
 router.get("/:user_id", [checkAuth, function (req, res, next) {     // returns a users details based on their ID
     if(req.params.user_id) {
-        var selects = "_id username";
+        var selects = "_id username surge_points favourites";
         if (req.user && req.params.user_id == req.user.id) {
             selects += " email";
         }
