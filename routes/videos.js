@@ -302,7 +302,7 @@ router.post("/:video_id/watched/", [users.forceAuth, function (req, res, next) {
 
 
 
-router.post("/:video_id/votes/", [users.forceAuth, function (req, res, next) {
+router.put("/:video_id/votes/", [users.forceAuth, function (req, res, next) {
     if(req.params.video_id && ((req.body.vote_type === "up")||(req.body.vote_type === "down"))) {
         var query = models.Video.where({'_id': req.params.video_id});
         query.findOne(function (err, video) {
