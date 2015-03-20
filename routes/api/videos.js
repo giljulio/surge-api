@@ -411,11 +411,6 @@ router.put("/:video_id/votes/", [users.forceAuth, function (req, res, next) {
  *          description: ID of the video
  *          paramType: form
  *          required: true
- *          dataType:
- *        - name: authorization
- *          description: The users authentication token
- *          paramType: header
- *          required: true
  *          dataType: string
  */
 
