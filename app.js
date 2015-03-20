@@ -29,20 +29,20 @@ app.use(swagger.init(app, {
     swaggerURL: '/api-playground',
     swaggerJSON: '/api-docs.json',
     swaggerUI: './public/swagger/',
-    apis: ['./routes/users.js','./routes/videos.js','./routes/achievements.js']
+    apis: ['./routes/api/users.js','./routes/api/videos.js','./routes/api/achievements.js']
 }));
 
 app.use(express.static(path.join(__dirname, 'public')));
 mongoose.connect(process.env.MONGOLAB_URI);
 
-var users = require('./routes/users');
-app.use('/users', users);
+var users = require('./routes/api/users');
+app.use('/api/users', users);
 
-var videos = require('./routes/videos');
-app.use('/videos', videos);
+var videos = require('./routes/api/videos');
+app.use('/api/videos', videos);
 
-var achievements = require('./routes/achievements');
-app.use('/achievements', achievements);
+var achievements = require('./routes/api/achievements');
+app.use('/api/achievements', achievements);
 
 // catch 404 and forward to error handler
 /*
