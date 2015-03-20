@@ -166,6 +166,11 @@ router.get("/", [users.checkAuth, function (req, res, next) {
  *          paramType: form
  *          required: true
  *          dataType: number
+ *        - name: authorization
+ *          description: The users authentication token
+ *          paramType: header
+ *          required: true
+ *          dataType: string
  */
 router.post("/", [users.forceAuth, function (req, res, next) {
     var video = new models.Video({
@@ -263,6 +268,11 @@ setInterval(function () {
  *          paramType: form
  *          required: true
  *          dataType: string
+ *        - name: authorization
+ *          description: The users authentication token
+ *          paramType: header
+ *          required: true
+ *          dataType: string
  */
 
 
@@ -310,6 +320,11 @@ router.post("/:video_id/watched/", [users.forceAuth, function (req, res, next) {
  *        - name: vote_type
  *          description: Whether they are up or down voting the video
  *          paramType: body
+ *          required: true
+ *          dataType: string
+ *        - name: authorization
+ *          description: The users authentication token
+ *          paramType: header
  *          required: true
  *          dataType: string
  */
@@ -395,6 +410,11 @@ router.put("/:video_id/votes/", [users.forceAuth, function (req, res, next) {
  *        - name: video_id
  *          description: ID of the video
  *          paramType: form
+ *          required: true
+ *          dataType:
+ *        - name: authorization
+ *          description: The users authentication token
+ *          paramType: header
  *          required: true
  *          dataType: string
  */

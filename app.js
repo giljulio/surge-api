@@ -29,7 +29,7 @@ app.use(swagger.init(app, {
     swaggerURL: '/api-playground',
     swaggerJSON: '/api-docs.json',
     swaggerUI: './public/swagger/',
-    apis: ['./routes/api/users.js','./routes/api/videos.js','./routes/api/achievements.js']
+    apis: ['./routes/api/users.js','./routes/api/videos.js']
 }));
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -41,8 +41,8 @@ app.use('/api/users', users);
 var videos = require('./routes/api/videos');
 app.use('/api/videos', videos);
 
-var achievements = require('./routes/api/achievements');
-app.use('/api/achievements', achievements);
+/*var achievements = require('./routes/api/achievements');
+app.use('/api/achievements', achievements);*/
 
 // catch 404 and forward to error handler
 /*

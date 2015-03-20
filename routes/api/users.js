@@ -65,6 +65,11 @@ var checkAuth = function (req, res, next) {
  *          paramType: body
  *          required: true
  *          dataType: string
+ *        - name: authorization
+ *          description: The users authentication token
+ *          paramType: header
+ *          required: true
+ *          dataType: string
  */
 
 router.get("/:user_id", [checkAuth, function (req, res, next) {     // returns a users details based on their ID
@@ -328,6 +333,11 @@ router.get("/:user_id/favourites/", function(req, res, next){      //Example fun
  *        - name: user_id
  *          description: The users ID to delete
  *          paramType: query
+ *          required: true
+ *          dataType: string
+ *        - name: authorization
+ *          description: The users authentication token
+ *          paramType: header
  *          required: true
  *          dataType: string
  */
