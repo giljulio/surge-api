@@ -15,7 +15,7 @@ var expirationTime = 10512000000; //4 Months in Milliseconds
 
 /**
  * @swagger
- * resourcePath: /users
+ * resourcePath: /api/users
  * description: All about API
  */
 
@@ -68,7 +68,7 @@ var checkAuth = function (req, res, next) {
  *        - name: authorization
  *          description: The users authentication token
  *          paramType: header
- *          required: true
+ *          required: false
  *          dataType: string
  */
 
