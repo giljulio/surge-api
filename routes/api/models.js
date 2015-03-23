@@ -77,7 +77,7 @@ module.exports.User = mongoose.model('User', {
     surge_points: {
         type: Number,
         min: 0,
-        deafult: 0
+        default: 0
     },
     favourites: [String]
 });
