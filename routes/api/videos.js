@@ -15,7 +15,7 @@ var models = require('./models');
 
 /**
  * @swagger
- * resourcePath: /videos
+ * resourcePath: /api/videos
  * description: All about API
  */
 
@@ -47,6 +47,11 @@ var models = require('./models');
  *          description: limits how many videos are returned
  *          paramType: query
  *          dataType: number
+ *        - name: authorization
+ *          description: The users authentication token
+ *          paramType: header
+ *          required: false
+ *          dataType: string
  */
 
 router.get("/", [users.checkAuth, function (req, res, next) {
