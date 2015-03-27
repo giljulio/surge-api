@@ -6,6 +6,7 @@ var mongoose = require('mongoose');
 var swagger = require('swagger-express');
 var path = require('path');
 
+
 //Swagger Documentation: https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
@@ -40,6 +41,10 @@ app.use('/api/users', users);
 
 var videos = require('./routes/api/videos');
 app.use('/api/videos', videos);
+
+var info = require('./routes/api/info');
+app.use('/api', info);
+
 
 /*var achievements = require('./routes/api/achievements');
 app.use('/api/achievements', achievements);*/
@@ -76,6 +81,7 @@ app.use(function(err, req, res, next) {
 /*app.use(function(err, req, res, next) {
 
 });*/
+
 
 
 
