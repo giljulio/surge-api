@@ -250,7 +250,7 @@ router.get("/:user_id/uploads/", function(req, res, next){      //Example functi
                 });
         });
     } else if(videos) {
-      res.send({'type':'no-uploads', 'message':'The user has no uploads'})
+      res.send([])
     } else {
         next(Boom.create(404, "user id not found: " + req.params.user_id, {
             type: "user-not-found"
@@ -305,7 +305,7 @@ router.get("/:user_id/favourites/", function(req, res, next){      //Example fun
                             });
                     });
                 } else if (videos) {
-                    res.send({'type': 'no-favourites', 'message': 'The user has no favourites'})
+                    res.send([]);
                 }
             });
         } else {
