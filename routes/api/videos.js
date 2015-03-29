@@ -77,7 +77,7 @@ router.get("/", [users.checkAuth, function (req, res, next) {
             };
         } else if(req.query.sort == "newest"){
             sort = {
-                timestamp: -1
+                timestamp: 1
             };
         } else if(req.query.sort == "top"){
             sort = {
@@ -361,10 +361,12 @@ router.put("/:video_id/votes/", [users.forceAuth, function (req, res, next) {
                                 video.up_vote = video.up_vote + 1;
                                 uploader.surge_points = uploader.surge_points + 10;
                                 video.up_votes_users.push(req.user.id);
+                                video.save();
                             } else {
                                 video.down_vote = video.down_vote + 1;
                                 uploader.surge_points = uploader.surge_points - 5;
                                 video.down_votes_users.push(req.user.id);
+                                video.save();
                             }
                             uploader.save();
                             video.save(function (err) {
