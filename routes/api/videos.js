@@ -75,9 +75,9 @@ router.get("/", [users.checkAuth, function (req, res, next) {
             sort = {
                 surge_rate: -1
             };
-        } else if(req.query.sort == "newest"){
+        } else if(req.query.sort == "new"){
             sort = {
-                timestamp: 1
+                timestamp: -1
             };
         } else if(req.query.sort == "top"){
             sort = {
@@ -349,13 +349,11 @@ router.put("/:video_id/votes/", [users.forceAuth, function (req, res, next) {
                                 video.down_vote = video.down_vote - 1;
                                 uploader.surge_points = uploader.surge_points + 5;
                                 uploader.save();
-                                video.save();
                             }
                             if (video.up_votes_users.length != video.up_votes_users.pull(req.user.id).length) {
                                 video.up_vote = video.up_vote - 1;
                                 uploader.surge_points = uploader.surge_points - 10;
                                 uploader.save();
-                                video.save();
                             }
                             if (req.body.vote_type === "up") {
                                 video.up_vote = video.up_vote + 1;
