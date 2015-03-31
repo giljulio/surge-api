@@ -366,7 +366,11 @@ router.put("/:video_id/votes/", [users.forceAuth, function (req, res, next) {
                                 video.save();
                             } else {
                                 video.down_vote = video.down_vote + 1;
-                                uploader.surge_points = uploader.surge_points - 5;
+                                if((uploader.surge_points -5) < 0) {
+                                    uploader.surge_points =0;
+                                } else {
+                                    uploader.surge_points = uploader.surge_points - 5;
+                                }
                                 video.down_votes_users.push(req.user.id);
                                 video.save();
                             }
